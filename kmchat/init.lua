@@ -1,3 +1,32 @@
+-- kmchat - a simple local chat mod for minetest
+-- Copyright (C) 2013 hunterdelyx1, vegasd (Konungstvo Midgard)
+--
+-- This file is part of KMRP minetest-mods
+--
+-- KMRP minetest-mods is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- KMRP minetest-mods is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with KMRP minetest-mods.  If not, see <http://www.gnu.org/licenses/>.
+--
+-------------------------------------------------------------------------------
+--
+-- Features:
+--  * Local chat
+--  * Comfortable whisper and shout w/o commands
+--  * Local and global OOC-chat
+--  * GM-prefixes
+
+-- TODO: colorize chat (chat colors are not implemented in Minetest for now)
+
+
 -- config zone {{{
 FMT_OOC = "%q (OOC): (( %q ))"
 FMT_SHOUT = "%q (shouts): %q"
@@ -12,6 +41,7 @@ RANGE_WHISPER = 3
 GM_PREFIX = "[GM] "
 -- config zone }}}
 
+
 minetest.register_privilege("allchat", "Gives accses to reading all messages in the chat")
 
 minetest.register_on_chat_message(function(name, message)
@@ -22,17 +52,12 @@ pls = minetest.get_connected_players()
 sym = message[:1]
 submes = message[2:]
 
--- GM's prefix
-if minetest.check_player_privs(name) then
-    showname = GM_PREFIX .. name
-end
-
 globalchat = false
 
 if sym == "?" then
     fmt = FMT_OOC
     globalchat = true
-    range = 68 
+    range = 0 
 elseif sum == "_"  then
     fmt = FMR_OOC
     range = RANGE_NORMAL
@@ -49,6 +74,13 @@ else
     fmt = FMT_NORMAL
     submes = message
     range = RANGE_NORMAL
+end
+
+-- GM's prefix
+if minetest.check_player_privs(name) then
+    showname = GM_PREFIX .. name
+else
+    showname = name
 end
 
 for i = 1, #pls do
