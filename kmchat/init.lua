@@ -56,7 +56,9 @@ submes = message:sub(2)
 if sym == "?" and not string.lenght(str) == 1 then
     fmt = FMT_OOC
     minetest.chat_send_all(string.format(fmt, showname, submes))
-else
+    return true
+end
+
 if sym == "_"  then
     fmt = FMT_OOC
     range = RANGE_NORMAL
