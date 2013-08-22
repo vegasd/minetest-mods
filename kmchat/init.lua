@@ -50,16 +50,14 @@ minetest.register_on_chat_message(function(name, message)
 pl = minetest.get_player_by_name(name)
 pls = minetest.get_connected_players()
 
-sym = message[:1]
-submes = message[2:]
+sym = message:sub(0,1)
+submes = message:sub(2)
 
-globalchat = false
-
-if sym == "?" then
+if sym == "?" and not string.lenght(str) == 1 then
     fmt = FMT_OOC
-    globalchat = true
-    range = 0 
-elseif sum == "_"  then
+    minetest.chat_send_all(string.format(fmt, showname, submes))
+else
+if sym == "_"  then
     fmt = FMT_OOC
     range = RANGE_NORMAL
 elseif sym == "!" then
@@ -68,10 +66,10 @@ elseif sym == "!" then
 elseif sym == "=" then
     fmt = FMT_WHISPER
     range = RANGE_WHISPER
-elseif sym = "*" then
+elseif sym == "*" then
     fmt = FMT_ME
     range = RANGE_NORMAL
-elseif sym = "#" and minetest.check_player_privs(name, {allchat=true}) then
+elseif sym == "#" and minetest.check_player_privs(name, {allchat=true}) then
     fmt = FMT_GM
     range = RANGE_NORMAL
 else
@@ -81,7 +79,7 @@ else
 end
 
 -- GM's prefix
-if minetest.check_player_privs(name, {gm=true}) then
+if minetest.check_player_privs(name, {gm=true,}) then
     showname = GM_PREFIX .. name
 else
     showname = name
@@ -97,4 +95,5 @@ for i = 1, #pls do
 end
 
 return true
-end)
+end 
+)
