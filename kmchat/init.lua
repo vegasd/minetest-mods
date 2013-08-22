@@ -98,7 +98,7 @@ elseif sym == "d" and submes == "12" then
     submes = math.random(12)
     range = RANGE_NORMAL
 elseif sym == "d" and submes == "20" then
-    fmt = "*** %s rolls d4 and result is %d ***"
+    fmt = "*** %s rolls d20 and result is %d ***"
     submes = math.random(20)
     range = RANGE_NORMAL
 else
