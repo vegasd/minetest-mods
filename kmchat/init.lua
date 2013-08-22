@@ -92,8 +92,8 @@ end
 senderpos = pl:getpos()
 for i = 1, #pls do
     recieverpos = pls[i]:getpos()
-    if (math.sqrt((senderpos.x-recieverpos.x)^2 + (senderpos.y-recieverpos.y)^2 + (senderpos.z-recieverpos.z)^2) < range
---        and (name ~= pls[i]:get_player_name()))
+    if math.sqrt((senderpos.x-recieverpos.x)^2 + (senderpos.y-recieverpos.y)^2 + (senderpos.z-recieverpos.z)^2) < range
+--        and (name ~= pls[i]:get_player_name())
         or (minetest.check_player_privs(pls[i]:get_player_name(), {gm=true}))-- for DSs or KAOS - TODO: make it differ from regular mes
     then
         minetest.chat_send_player(pls[i]:get_player_name(), string.format(fmt, showname, submes), false)
