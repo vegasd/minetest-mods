@@ -71,7 +71,7 @@ elseif sym == "=" then
 elseif sym == "*" then
     fmt = FMT_ME
     range = RANGE_NORMAL
-elseif sym == "#" and minetest.check_player_privs(name, {allchat=true}) then
+elseif sym == "#" and minetest.check_player_privs(name, {gm=true}) then
     fmt = FMT_GM
     range = RANGE_NORMAL
 else
