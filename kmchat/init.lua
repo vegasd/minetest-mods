@@ -91,7 +91,6 @@ for i = 1, #pls do
     if (math.sqrt((pl:getpos().x-pls[i]:getpos().x)^2 +(pl:getpos().y-pls[i]:getpos().y)^2+(pl:getpos().z-pls[i]:getpos().z)^2)<range
         and (name ~= pls[i]:get_player_name()))
         or (minetest.check_player_privs(pls[i]:get_player_name(), {gm=true}))-- for DSs or KAOS - TODO: make it differ from regular mes
-        or (globalchat)
         then minetest.chat_send_player(pls[i]:get_player_name(), string.format(fmt, showname, submes), false)
     end
 end
