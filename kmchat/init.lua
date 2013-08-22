@@ -28,11 +28,12 @@
 
 
 -- config zone {{{
-FMT_OOC = "%q (OOC): (( %q ))"
-FMT_SHOUT = "%q (shouts): %q"
-FMT_WHISPER = "%q (whispers): %q"
-FMT_ME = "* %q %q"
-FMT_NORMAL = "%q: %q"
+FMT_OOC = "%s (OOC): (( %s ))"
+FMT_SHOUT = "%s (shouts): %s"
+FMT_WHISPER = "%s (whispers): %s"
+FMT_ME = "* %s %s"
+FMT_GM = "*** %s: %s ***"
+FMT_NORMAL = "%s: %s"
 
 RANGE_NORMAL = 18
 RANGE_SHOUT = 68
@@ -59,7 +60,7 @@ if sym == "?" then
     globalchat = true
     range = 0 
 elseif sum == "_"  then
-    fmt = FMR_OOC
+    fmt = FMT_OOC
     range = RANGE_NORMAL
 elseif sym == "!" then
     fmt = FMT_SHOUT
@@ -70,6 +71,9 @@ elseif sym == "=" then
 elseif sym = "*" then
     fmt = FMT_ME
     range = RANGE_NORMAL
+elseif sym = "#" and minetest.check_player_privs(name, {allchat=true}) then
+    fmt = FMT_GM
+    range = RANGE_NORMAL
 else
     fmt = FMT_NORMAL
     submes = message
@@ -77,7 +81,7 @@ else
 end
 
 -- GM's prefix
-if minetest.check_player_privs(name) then
+if minetest.check_player_privs(name, {allchat=true}) then
     showname = GM_PREFIX .. name
 else
     showname = name
@@ -86,7 +90,7 @@ end
 for i = 1, #pls do
     if (math.sqrt((pl:getpos().x-pls[i]:getpos().x)^2 +(pl:getpos().y-pls[i]:getpos().y)^2+(pl:getpos().z-pls[i]:getpos().z)^2)<range
         and not(name == pls[i]:get_player_name()))
-        or (minetest.check_player_privs(pls[i]:get_player_name(), {allchat=true}))-- for DSs or KAOS
+        or (minetest.check_player_privs(pls[i]:get_player_name(), {allchat=true}))-- for DSs or KAOS - TODO: make it differ from regular mes
         or (globalchat)
         then minetest.chat_send_player(pls[i]:get_player_name(), string.format(fmt, showname, submes), false)
     end
