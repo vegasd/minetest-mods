@@ -48,7 +48,7 @@ minetest.register_privilege("gm", "Gives accses to reading all messages in the c
 
 minetest.register_on_chat_message(function(name, message)
 
- = minetest.get_player_by_name(name)
+pl = minetest.get_player_by_name(name)
 pls = minetest.get_connected_players()
 
 sym = message:sub(0,1)
