@@ -47,13 +47,13 @@ minetest.register_privilege("gm", "Gives accses to reading all messages in the c
 
 minetest.register_on_chat_message(function(name, message)
 
-pl = minetest.get_player_by_name(name)
+ = minetest.get_player_by_name(name)
 pls = minetest.get_connected_players()
 
 sym = message:sub(0,1)
 submes = message:sub(2)
 
-minetest.chat_send_player(pls[i]:get_player_name(), "Everybody see:\n", false)
+minetest.chat_send_player(name, "Everybody see:\n", false)
 
 if sym == "?" and string.len(message) ~= 1 then
     fmt = FMT_OOC
