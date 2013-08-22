@@ -23,6 +23,7 @@
 --  * Comfortable whisper and shout w/o commands
 --  * Local and global OOC-chat
 --  * GM-prefixes
+--  * Dices
 
 -- TODO: colorize chat (chat colors are not implemented in Minetest for now)
 
@@ -75,6 +76,30 @@ elseif sym == "*" then
     range = RANGE_NORMAL
 elseif sym == "#" and minetest.check_player_privs(name, {gm=true}) then
     fmt = FMT_GM
+    range = RANGE_NORMAL
+elseif sym == "d" and submes == "4" then
+    fmt = "*** %s rolls d4 and result is %d ***"
+    submes = math.random(4)
+    range = RANGE_NORMAL
+elseif sym == "d" and submes == "6" then
+    fmt = "*** %s rolls d6 and result is %d ***"
+    submes = math.random(6)
+    range = RANGE_NORMAL
+elseif sym == "d" and submes == "8" then
+    fmt = "*** %s rolls d8 and result is %d ***"
+    submes = math.random(8)
+    range = RANGE_NORMAL
+elseif sym == "d" and submes == "10" then
+    fmt = "*** %s rolls d10 and result is %d ***"
+    submes = math.random(10)
+    range = RANGE_NORMAL
+elseif sym == "d" and submes == "12" then
+    fmt = "*** %s rolls d12 and result is %d ***"
+    submes = math.random(12)
+    range = RANGE_NORMAL
+elseif sym == "d" and submes == "20" then
+    fmt = "*** %s rolls d4 and result is %d ***"
+    submes = math.random(20)
     range = RANGE_NORMAL
 else
     fmt = FMT_NORMAL
