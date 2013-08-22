@@ -1,4 +1,4 @@
 minetest-mods
 =============
 
-Minetest mods of KMRP
+Minetest mods by Konungstvo Midgard community
