@@ -53,7 +53,7 @@ pls = minetest.get_connected_players()
 sym = message:sub(0,1)
 submes = message:sub(2)
 
-if sym == "?" and not string.lenght(str) == 1 then
+if sym == "?" and string.lenght(str) ~= 1 then
     fmt = FMT_OOC
     minetest.chat_send_all(string.format(fmt, showname, submes))
     return true
