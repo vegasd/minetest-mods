@@ -43,7 +43,7 @@ GM_PREFIX = "[GM] "
 -- config zone }}}
 
 
-minetest.register_privilege("allchat", "Gives accses to reading all messages in the chat")
+minetest.register_privilege("gm", "Gives accses to reading all messages in the chat")
 
 minetest.register_on_chat_message(function(name, message)
 
@@ -81,7 +81,7 @@ else
 end
 
 -- GM's prefix
-if minetest.check_player_privs(name, {allchat=true}) then
+if minetest.check_player_privs(name, {gm=true}) then
     showname = GM_PREFIX .. name
 else
     showname = name
@@ -90,7 +90,7 @@ end
 for i = 1, #pls do
     if (math.sqrt((pl:getpos().x-pls[i]:getpos().x)^2 +(pl:getpos().y-pls[i]:getpos().y)^2+(pl:getpos().z-pls[i]:getpos().z)^2)<range
         and not(name == pls[i]:get_player_name()))
-        or (minetest.check_player_privs(pls[i]:get_player_name(), {allchat=true}))-- for DSs or KAOS - TODO: make it differ from regular mes
+        or (minetest.check_player_privs(pls[i]:get_player_name(), {gm=true}))-- for DSs or KAOS - TODO: make it differ from regular mes
         or (globalchat)
         then minetest.chat_send_player(pls[i]:get_player_name(), string.format(fmt, showname, submes), false)
     end
