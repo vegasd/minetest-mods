@@ -1,4 +1,4 @@
 minetest-mods
 =============
 
-Minetest mods by Konungstvo Midgard community
+Minetest mods by Konungstvo Midgard community.
