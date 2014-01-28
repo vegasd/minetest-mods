@@ -156,7 +156,7 @@ minetest.register_craft({
 
 
 -- load characters map
-local chars_file = io.open(minetest.get_modpath("signs").."/characters", "r")
+local chars_file = io.open(minetest.get_modpath(minetest.get_current_modname()).."/characters", "r")
 local charmap = {}
 local charwidth = {}
 local max_chars = 16
@@ -360,7 +360,7 @@ generate_texture = function(lines)
     local ypos = 12
     for i = 1, #lines do
         texture = texture..generate_line(lines[i], ypos)
-        ypos = ypos + 8
+        ypos = ypos + 12 
     end
     return texture
 end
