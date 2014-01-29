@@ -9,8 +9,8 @@ local directions = {
     {x = 0, y = 0, z = -1},
 }
 
-local function update_pane(pos)
-    if minetest.env:get_node(pos).name:find("xpanes:pane") == nil then
+local function update_wall(pos)
+    if minetest.env:get_node(pos).name:find("cobble_wall:wall") == nil then
         return
     end
     local sum = 0
@@ -23,12 +23,12 @@ local function update_pane(pos)
     if sum == 0 then
         sum = 15
     end
-    minetest.env:add_node(pos, {name = "xpanes:pane_"..sum})
+    minetest.env:add_node(pos, {name = "cobble_wall:wall_"..sum})
 end
 
 local function update_nearby(pos)
     for i = 1,4 do
-        update_pane({x = pos.x + directions[i].x, y = pos.y + directions[i].y, z = pos.z + directions[i].z})
+        update_wall({x = pos.x + directions[i].x, y = pos.y + directions[i].y, z = pos.z + directions[i].z})
     end
 end
 
@@ -88,13 +88,13 @@ for i = 1, 15 do
     })
 end
 
-minetest.register_node("xpanes:pane", {
-    description = "Glass Pane",
-    tile_images = {"xpanes_space.png"},
-    inventory_image = "xpanes_pane.png",
-    wield_image = "xpanes_pane.png",
+minetest.register_node("cobble_wall:wall", {
+    description = "Cobblestone Wall",
+    tile_images = {"default_cobble.png"},
+    --inventory_image = "xpanes_pane.png",
+    --wield_image = "xpanes_pane.png",
     node_placement_prediction = "",
-    on_construct = update_pane
+    on_construct = update_wall
 })
 
 minetest.register_on_placenode(update_nearby)
