@@ -133,9 +133,14 @@ minetest.register_node("cobble_wall:wall_21", {
 minetest.register_node("cobble_wall:wall", {
     description = "Cobblestone Wall",
     tile_images = {"default_cobble.png"},
-    --inventory_image = "xpanes_pane.png",
-    --wield_image = "xpanes_pane.png",
-    node_placement_prediction = "",
+    stack_max = 64,
+
+    drawtype = "nodebox",
+    node_box = {
+        type = "fixed",
+        fixed = pillar
+    },
+
     on_construct = update_wall
 })
 
@@ -143,9 +148,9 @@ minetest.register_on_placenode(update_nearby)
 minetest.register_on_dignode(update_nearby)
 
 minetest.register_craft({
-	output = 'xpanes:pane 16',
+	output = 'cobble_wall:wall 16',
 	recipe = {
-		{'default:glass', 'default:glass', 'default:glass'},
-        {'default:glass', 'default:glass', 'default:glass'}
+		{'default:cobble', 'default:cobble', 'default:cobble'},
+        {'default:cobble', 'default:cobble', 'default:cobble'}
 	}
 })
