@@ -33,20 +33,23 @@ local function update_nearby(pos)
 end
 
 local half_blocks = {
-    {0, -0.5, -0.06, 0.5, 0.5, 0.06},
-    {-0.06, -0.5, 0, 0.06, 0.5, 0.5},
-    {-0.5, -0.5, -0.06, 0, 0.5, 0.06},
-    {-0.06, -0.5, -0.5, 0.06, 0.5, 0}
+    {4/16, -0.5, -3/16, 0.5, 5/16, 3/16},
+    {-3/16, -0.5, 4/16, 3/16, 5/16, 0.5},
+    {-0.5, -0.5, -3/16, 4/16, 5/16, 3/16},
+    {-3/16, -0.5, -0.5, 3/16, 5/16, 4/16}
 }
 
+local pillar = {-4/16, -0.5, -4/16, 4/16, 0.5, 4/16}
+
 local full_blocks = {
-    {-0.5, -0.5, -0.06, 0.5, 0.5, 0.06},
-    {-0.06, -0.5, -0.5, 0.06, 0.5, 0.5}
+    {-0.5, -0.5, -3/16, 0.5, 5/16, 3/16},
+    {-3/16, -0.5, -0.5, 3/16, 5/16, 0.5}
 }
 
 for i = 1, 15 do
     local need = {}
-    local cnt = 0
+    need.pillar = false
+    --local cnt = 0
     for j = 1, 4 do
         if rshift(i, j - 1) % 2 == 1 then
             need[j] = true
@@ -66,25 +69,23 @@ for i = 1, 15 do
     end
     for k in pairs(need) do
         table.insert(take, half_blocks[k])
+        need.pillar = true
     end
-    local texture = "xpanes_pane.png"
-    if cnt == 1 then
-        texture = "xpanes_pane_half.png"
-    end
-    minetest.register_node("xpanes:pane_"..i, {
+    if need.pillar then table.insert(take, pillar) end
+    --local texture = "xpanes_pane.png"
+    --if cnt == 1 then
+        --texture = "xpanes_pane_half.png"
+    --end
+    minetest.register_node("cobble_wall:wall_"..i, {
         drawtype = "nodebox",
-        tile_images = {"xpanes_white.png", "xpanes_white.png", texture},
+        tile_images = {"default_cobble.png"},
         paramtype = "light",
         groups = {snappy=2,cracky=3,oddly_breakable_by_hand=3},
-        drop = "xpanes:pane",
+        drop = "cobble_wall:wall",
         node_box = {
             type = "fixed",
             fixed = take
         },
-        selection_box = {
-            type = "fixed",
-            fixed = take
-        }
     })
 end
 
