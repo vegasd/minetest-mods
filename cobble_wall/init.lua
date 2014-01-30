@@ -53,7 +53,7 @@ for i = 1, 15 do
     for j = 1, 4 do
         if rshift(i, j - 1) % 2 == 1 then
             need[j] = true
-            cnt = cnt + 1
+            --cnt = cnt + 1
         end
     end
     local take = {}
