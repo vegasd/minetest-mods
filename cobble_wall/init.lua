@@ -46,16 +46,15 @@ local full_blocks = {
     {-3/16, -0.5, -0.5, 3/16, 5/16, 0.5}
 }
 
-for i = 1, 15 do
+for i = 1, 14 do
     local need = {}
-    need.pillar = false
-    --local cnt = 0
+    local need_pillar = false
     for j = 1, 4 do
         if rshift(i, j - 1) % 2 == 1 then
             need[j] = true
-            --cnt = cnt + 1
         end
     end
+
     local take = {}
     if need[1] == true and need[3] == true then
         need[1] = nil
@@ -69,13 +68,10 @@ for i = 1, 15 do
     end
     for k in pairs(need) do
         table.insert(take, half_blocks[k])
-        need.pillar = true
+        need_pillar = true
     end
-    if need.pillar then table.insert(take, pillar) end
-    --local texture = "xpanes_pane.png"
-    --if cnt == 1 then
-        --texture = "xpanes_pane_half.png"
-    --end
+    if need_pillar then table.insert(take, pillar) end
+
     minetest.register_node("cobble_wall:wall_"..i, {
         drawtype = "nodebox",
         tile_images = {"default_cobble.png"},
@@ -88,6 +84,18 @@ for i = 1, 15 do
         },
     })
 end
+
+minetest.register_node("cobble_wall:wall_15", {
+    drawtype = "nodebox",
+    tile_images = {"default_cobble.png"},
+    paramtype = "light",
+    groups = {snappy=2,cracky=3,oddly_breakable_by_hand=3},
+    drop = "cobble_wall:wall",
+    node_box = {
+        type = "fixed",
+        fixed = pillar
+    },
+})
 
 minetest.register_node("cobble_wall:wall", {
     description = "Cobblestone Wall",
