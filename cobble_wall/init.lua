@@ -7,6 +7,7 @@ local directions = {
     {x = 0, y = 0, z = 1},
     {x = -1, y = 0, z = 0},
     {x = 0, y = 0, z = -1},
+    {x = 0, y = -1, z = 0},
 }
 
 local function update_wall(pos)
@@ -16,10 +17,18 @@ local function update_wall(pos)
     local sum = 0
     for i = 1, 4 do
         local node = minetest.env:get_node({x = pos.x + directions[i].x, y = pos.y + directions[i].y, z = pos.z + directions[i].z})
-        if minetest.registered_nodes[node.name].walkable ~= false then
+        if minetest.registered_nodes[node.name].walkable then
             sum = sum + 2 ^ (i - 1)
         end
     end
+
+    local node = minetest.env:get_node({x = pos.x, y = pos.y+1, z = pos.z})
+    if sum == 5 or sum == 10 then
+        if minetest.registered_nodes[node.name].walkable then
+            sum = sum + 11
+        end
+    end
+
     if sum == 0 then
         sum = 15
     end
@@ -27,7 +36,7 @@ local function update_wall(pos)
 end
 
 local function update_nearby(pos)
-    for i = 1,4 do
+    for i = 1,5 do
         update_wall({x = pos.x + directions[i].x, y = pos.y + directions[i].y, z = pos.z + directions[i].z})
     end
 end
@@ -94,6 +103,30 @@ minetest.register_node("cobble_wall:wall_15", {
     node_box = {
         type = "fixed",
         fixed = pillar
+    },
+})
+
+minetest.register_node("cobble_wall:wall_16", {
+    drawtype = "nodebox",
+    tile_images = {"default_cobble.png"},
+    paramtype = "light",
+    groups = {snappy=2,cracky=3,oddly_breakable_by_hand=3},
+    drop = "cobble_wall:wall",
+    node_box = {
+        type = "fixed",
+        fixed = {pillar, full_blocks[1]}
+    },
+})
+
+minetest.register_node("cobble_wall:wall_21", {
+    drawtype = "nodebox",
+    tile_images = {"default_cobble.png"},
+    paramtype = "light",
+    groups = {snappy=2,cracky=3,oddly_breakable_by_hand=3},
+    drop = "cobble_wall:wall",
+    node_box = {
+        type = "fixed",
+        fixed = {pillar, full_blocks[2]}
     },
 })
 
