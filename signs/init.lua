@@ -102,46 +102,49 @@ local crutch_table = {
 ["232191145"]="я"
 };
 
-
-
 function tobytes(str)
- i=1
- byte={}
- while i<=#str do
-  table.insert(byte, string.byte(string.sub(str, i, i)))
-  i=i+1
- end
- return byte;
+    byte={}
+    for i = 1, #str do
+        table.insert(byte, string.byte(string.sub(str, i, i)))
+    end
+    return byte;
 end
 
 function string.km_rus_crutch_regen(str)
- byte=tobytes(str)
- text=""
- if byte[1]~=nil then
- i=1
- repeat
-  if byte[i]>128 then
-   if byte[i+2]~=nil and byte[i+1]~=nil and byte[i] then
-    tmp = byte[i]..byte[i+1]..byte[i+2]
-   else
-    tmp = "0"
-   end
+    byte=tobytes(str)
+    text=""
+    if byte[1]~=nil then
+    i=1
+    repeat
+        if byte[i]>128 then
+            if byte[i+2]~=nil and byte[i+1]~=nil and byte[i] then
+                tmp = byte[i]..byte[i+1]..byte[i+2]
+            else
+                tmp = "0"
+            end
 
-   if crutch_table[tmp]~=nil then
-    char = crutch_table[tmp]
-    i=i+3
-   else
-    char = string.sub(str, i, i+1)
-    i=i+2
-   end
-  else
-   char=string.sub(str, i, i)
-   i=i+1
-  end
-  text=text..char
- until i>#byte 
- end
- return text
+            if crutch_table[tmp]~=nil then
+                char = crutch_table[tmp]
+                i=i+3
+            else
+                char = string.sub(str, i, i+1)
+                i=i+2
+            end
+        else
+            char=string.sub(str, i, i)
+            i=i+1
+        end
+        text=text..char
+    until i>#byte 
+    end
+    return text
+end
+
+function km_process_fields(fields)
+    for i = 1, 7 do
+        fields["line"..i]= string.km_rus_crutch_regen(fields["line"..i])
+    end
+    return fields
 end
 -- ============================================================================================================================================
 
@@ -292,13 +295,7 @@ minetest.register_node("signs:sign", {
     end,
 
     on_receive_fields = function(pos, formname, fields, sender)
--- avoiding of bug with russian input =========================================================================================================
-     line_cycle=1; --cycle parametr
-     while line_cycle<8 do
-       fields["line"..line_cycle]= string.km_rus_crutch_regen(fields["line"..line_cycle])
-       line_cycle=line_cycle+1
-     end
---end==========================================================================================================================================
+        fields = km_process_fields(fields)  -- HACK: avoiding of bug with russian input
         update_sign(pos, fields)
     end,
 })
@@ -325,16 +322,8 @@ minetest.register_node("signs:sign_yard", {
     end,
 
     on_receive_fields = function(pos, formname, fields, sender)
-
--- avoiding of bug with russian input =========================================================================================================
-     line_cycle=1; --cycle parametr
-     while line_cycle<8 do
-       fields["line"..line_cycle]= string.km_rus_crutch_regen(fields["line"..line_cycle])
-       line_cycle=line_cycle+1
-     end
---end==========================================================================================================================================
-
-     update_sign(pos, fields)
+        fields = km_process_fields(fields)  -- HACK: avoiding of bug with russian input
+        update_sign(pos, fields)
     end,
 })
 
