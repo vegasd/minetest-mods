@@ -160,25 +160,15 @@ minetest.register_craft({
 
 
 -- load characters map
-local chars_file = io.open(minetest.get_modpath(minetest.get_current_modname()).."/characters", "r")
 local charmap = {}
 local charwidth = {}
 local max_chars = 16
-if not chars_file then
-    print("[signs] E: character map file not found")
-else
-    while true do
-        local char = chars_file:read("*l")
-        if char == nil then
-            break
-        end
-        local img = chars_file:read("*l")
-        local width = chars_file:read("*n")
-        chars_file:read("*l")
-        charmap[char] = img
-        charwidth[img] = width
-    end
+for line in io.lines(minetest.get_modpath(minetest.get_current_modname()).."/characters") do
+    char, width, img = string.match(line, "(.+) (%d) (.+)")
+    charmap[char] = img
+    charwidth[img] = width
 end
+
 
 local metas = {"line1", "line2", "line3", "line4", "line5", "line6", "line7"}
 local signs = {

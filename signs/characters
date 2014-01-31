@@ -1,513 +1,165 @@
-A
-_a_
-4
-B
-_b_
-4
-C
-_c_
-3
-D
-_d_
-4
-E
-_e_
-3
-F
-_f_
-3
-G
-_g_
-4
-H
-_h_
-4
-I
-_i_
-3
-J
-_j_
-4
-K
-_k_
-4
-L
-_l_
-3
-M
-_m_
-5
-N
-_n_
-4
-O
-_o_
-4
-P
-_p_
-4
-Q
-_q_
-4
-R
-_r_
-4
-S
-_s_
-4
-T
-_t_
-3
-U
-_u_
-4
-V
-_v_
-4
-W
-_w_
-5
-X
-_x_
-4
-Y
-_y_
-4
-Z
-_z_
-3
-a
-_a
-4
-b
-_b
-4
-c
-_c
-3
-d
-_d
-4
-e
-_e
-4
-f
-_f
-3
-g
-_g
-4
-h
-_h
-4
-i
-_i
-1
-j
-_j
-2
-k
-_k
-4
-l
-_l
-1
-m
-_m
-5
-n
-_n
-4
-o
-_o
-4
-p
-_p
-4
-q
-_q
-4
-r
-_r
-3
-s
-_s
-4
-t
-_t
-3
-u
-_u
-4
-v
-_v
-4
-w
-_w
-5
-x
-_x
-3
-y
-_y
-4
-z
-_z
-4
- 
-_sp
-2
-0
-_0
-4
-1
-_1
-2
-2
-_2
-4
-3
-_3
-4
-4
-_4
-4
-5
-_5
-4
-6
-_6
-4
-7
-_7
-4
-8
-_8
-4
-9
-_9
-4
-(
-_bl
-2
-)
-_br
-2
-{
-_cl
-3
-}
-_cr
-3
-[
-_sl
-2
-]
-_sr
-2
-'
-_ap
-1
-!
-_ex
-1
-?
-_qu
-4
-@
-_at
-5
-#
-_hs
-5
-$
-_dl
-4
-%
-_pr
-5
-^
-_ca
-3
-&
-_am
-5
-*
-_as
-3
-_
-_un
-3
-+
-_ps
-3
--
-_mn
-3
-=
-_eq
-3
-;
-_sm
-1
-,
-_cm
-2
-"
-_qo
-3
-/
-_dv
-5
-~
-_tl
-4
-<
-_lt
-3
->
-_gt
-3
-\
-_re
-5
-|
-_vb
-1
-.
-_dt
-1
-А
-_a_rus
-4
-Б
-_b_rus
-4
-В
-_v_rus
-4
-Г
-_g_rus
-4
-Д
-_d_rus
-5
-Е
-_e_rus
-4
-а
-rus_a
-4
-б
-rus_b
-4
-в
-rus_v
-4
-г
-rus_g
-4
-д
-rus_d
-5
-е
-rus_ye
-4
-ё
-rus_yo
-4
-ж
-rus_zhe
-5
-з
-rus_z
-4
-и
-rus_i
-4
-й
-rus_j
-4
-к
-rus_k
-4
-л
-rus_l
-4
-м
-rus_m
-5
-н
-rus_n
-4
-о
-rus_o
-4
-п
-rus_p
-4
-р
-rus_r
-4
-с
-rus_s
-4
-т
-rus_t
-5
-у
-rus_u
-4
-ф
-rus_f
-5
-х
-rus_h
-5
-ц
-rus_ts
-4
-ч
-rus_ch
-4
-ш
-rus_sh
-5
-щ
-rus_sch
-5
-ъ
-rus_tvzn
-5
-ы
-rus_y
-5
-ь
-rus_mzn
-4
-э
-rus_e
-4
-ю
-rus_yu
-5
-я
-rus_ya
-4
-А
-_a_rus
-4
-Б
-_b_rus
-4
-В
-_v_rus
-4
-Г
-_g_rus
-4
-Д
-_d_rus
-5
-Е
-_e_rus
-4
-А
-rus_a_
-4
-Б
-rus_b_
-4
-В
-rus_v_
-4
-Г
-rus_g_
-4
-Д
-rus_d_
-5
-Е
-rus_ye_
-4
-Ё
-rus_ye_
-4
-Ж
-rus_zh_
-5
-З
-rus_z_
-4
-И
-rus_i_
-4
-Й
-rus_j_
-4
-К
-rus_k_
-4
-Л
-rus_l_
-4
-М
-rus_m_
-5
-Н
-rus_n_
-4
-О
-rus_o_
-4
-П
-rus_p_
-4
-Р
-rus_r_
-4
-С
-rus_s_
-4
-Т
-rus_t_
-5
-У
-rus_u_
-4
-Ф
-rus_f_
-5
-Х
-rus_h_
-5
-Ц
-rus_ts_
-5
-Ч
-rus_ch_
-4
-Ш
-rus_sh_
-5
-Щ
-rus_sch_
-5
-Ъ
-rus_tvzn_
-5
-Ы
-rus_y_
-5
-Ь
-rus_mzn_
-4
-Э
-rus_e_
-4
-Ю
-rus_yu_
-5
-Я
-rus_ya_
-4
+A 4 _a_
+B 4 _b_
+C 3 _c_
+D 4 _d_
+E 3 _e_
+F 3 _f_
+G 4 _g_
+H 4 _h_
+I 3 _i_
+J 4 _j_
+K 4 _k_
+L 3 _l_
+M 5 _m_
+N 4 _n_
+O 4 _o_
+P 4 _p_
+Q 4 _q_
+R 4 _r_
+S 4 _s_
+T 3 _t_
+U 4 _u_
+V 4 _v_
+W 5 _w_
+X 4 _x_
+Y 4 _y_
+Z 3 _z_
+a 4 _a
+b 4 _b
+c 3 _c
+d 4 _d
+e 4 _e
+f 3 _f
+g 4 _g
+h 4 _h
+i 1 _i
+j 2 _j
+k 4 _k
+l 1 _l
+m 5 _m
+n 4 _n
+o 4 _o
+p 4 _p
+q 4 _q
+r 3 _r
+s 4 _s
+t 3 _t
+u 3 _u
+v 4 _v
+w 5 _w
+x 3 _x
+y 4 _y
+z 4 _z
+  2 _sp
+0 4 _0
+1 2 _1
+2 4 _2
+3 4 _3
+4 4 _4
+5 4 _5
+6 4 _6
+7 4 _7
+8 4 _8
+9 4 _9
+( 2 _bl
+) 2 _br
+{ 3 _cl
+} 3 _cr
+[ 2 _sl
+] 2 _sr
+' 1 _ap
+! 1 _ex
+? 4 _qu
+@ 5 _at
+# 5 _hs
+$ 4 _dl
+% 5 _pr
+^ 3 _ca
+& 5 _am
+* 3 _as
+_ 3 _un
++ 3 _ps
+- 3 _mn
+= 3 _eq
+; 1 _sm
+, 2 _cm
+" 3 _qo
+/ 5 _dv
+~ 4 _tl
+< 3 _lt
+> 3 _gt
+\ 5 _re
+| 1 _vb
+. 1 _dt
+а 4 rus_a
+б 4 rus_b
+в 4 rus_v
+г 4 rus_g
+д 5 rus_d
+е 4 rus_ye
+ё 4 rus_yo
+ж 5 rus_zhe
+з 4 rus_z
+и 4 rus_i
+й 4 rus_j
+к 4 rus_k
+л 4 rus_l
+м 5 rus_m
+н 4 rus_n
+о 4 rus_o
+п 4 rus_p
+р 4 rus_r
+с 4 rus_s
+т 5 rus_t
+у 4 rus_u
+ф 5 rus_f
+х 5 rus_h
+ц 4 rus_ts
+ч 4 rus_ch
+ш 5 rus_sh
+щ 5 rus_sch
+ъ 5 rus_tvzn
+ы 5 rus_y
+ь 4 rus_mzn
+э 4 rus_e
+ю 5 rus_yu
+я 4 rus_ya
+А 4 _a_rus
+Б 4 _b_rus
+В 4 _v_rus
+Г 4 _g_rus
+Д 5 _d_rus
+Е 4 _e_rus
+А 4 rus_a_
+Б 4 rus_b_
+В 4 rus_v_
+Г 4 rus_g_
+Д 5 rus_d_
+Е 4 rus_ye_
+Ё 4 rus_ye_
+Ж 5 rus_zh_
+З 4 rus_z_
+И 4 rus_i_
+Й 4 rus_j_
+К 4 rus_k_
+Л 4 rus_l_
+М 5 rus_m_
+Н 4 rus_n_
+О 4 rus_o_
+П 4 rus_p_
+Р 4 rus_r_
+С 4 rus_s_
+Т 5 rus_t_
+У 4 rus_u_
+Ф 5 rus_f_
+Х 5 rus_h_
+Ц 5 rus_ts_
+Ч 4 rus_ch_
+Ш 5 rus_sh_
+Щ 5 rus_sch_
+Ъ 5 rus_tvzn_
+Ы 5 rus_y_
+Ь 4 rus_mzn_
+Э 4 rus_e_
+Ю 5 rus_yu_
+Я 4 rus_ya_
