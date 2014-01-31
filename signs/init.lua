@@ -112,8 +112,10 @@ end
 
 function string.km_rus_crutch_regen(str)
     byte=tobytes(str)
+    if byte[1]==nil then
+        return ""
+    end
     text=""
-    if byte[1]~=nil then
     i=1
     repeat
         if byte[i]>128 then
@@ -136,7 +138,6 @@ function string.km_rus_crutch_regen(str)
         end
         text=text..char
     until i>#byte 
-    end
     return text
 end
 
