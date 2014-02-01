@@ -273,7 +273,6 @@ minetest.register_node("signs:sign", {
     end,
 
     on_receive_fields = function(pos, formname, fields, sender)
-        fields = km_process_fields(fields)  -- HACK: avoiding of bug with russian input
         update_sign(pos, fields)
     end,
 })
