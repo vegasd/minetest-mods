@@ -142,7 +142,7 @@ local update_sign = function(pos, fields)
 end
 
 minetest.register_node("signs:poster", {
-    description = "Листовка",
+    description = "Poster",
     inventory_image = "signs_sign.png",
     wield_image = "signs_sign.png",
     stack_max = 64,
@@ -210,7 +210,7 @@ minetest.register_node("signs:poster", {
 })
 
 minetest.register_node("signs:sign", {
-    description = "Табличка",
+    description = "Sign",
     inventory_image = "signs_sign.png",
     wield_image = "signs_sign.png",
     stack_max = 1,
