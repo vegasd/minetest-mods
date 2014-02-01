@@ -79,10 +79,10 @@ end
 
 local metas = {"line1", "line2", "line3", "line4", "line5", "line6", "line7"}
 local poster = {
-    {delta = {x = 0, y = 0, z = 0.459}, yaw = 0},
-    {delta = {x = 0.459, y = 0, z = 0}, yaw = math.pi / -2},
-    {delta = {x = 0, y = 0, z = -0.459}, yaw = math.pi},
-    {delta = {x = -0.459, y = 0, z = 0}, yaw = math.pi / 2},
+    {delta = {x = 0, y = 0, z = 0.469}, yaw = 0},
+    {delta = {x = 0.469, y = 0, z = 0}, yaw = math.pi / -2},
+    {delta = {x = 0, y = 0, z = -0.469}, yaw = math.pi},
+    {delta = {x = -0.469, y = 0, z = 0}, yaw = math.pi / 2},
 }
 local signs = {
     {delta = {x = 0, y = 0, z = 0.399}, yaw = 0},
