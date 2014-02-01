@@ -69,7 +69,7 @@ local chars_file = io.open(minetest.get_modpath(minetest.get_current_modname()).
 if not chars_file then
     print("[signs] E: character map file not found")
 else
-    for line in chars_file:lines(minetest.get_modpath(minetest.get_current_modname()).."/characters") do
+    for line in chars_file:lines() do
         char, width, img = string.match(line, "(.+) (%d) (.+)")
         charmap[char] = img
         charwidth[img] = width
