@@ -29,9 +29,9 @@ local function update_wall(pos)
         end
     end
 
-    if sum == 0 then
-        sum = 15
-    end
+    --if sum == 0 then
+        --sum = 15
+    --end
     minetest.env:add_node(pos, {name = "cobble_wall:wall_"..sum})
 end
 
@@ -55,7 +55,7 @@ local full_blocks = {
     {-3/16, -0.5, -0.5, 3/16, 5/16, 0.5}
 }
 
-for i = 1, 14 do
+for i = 0, 15 do
     local need = {}
     local need_pillar = false
     for j = 1, 4 do
@@ -79,6 +79,7 @@ for i = 1, 14 do
         table.insert(take, half_blocks[k])
         need_pillar = true
     end
+    if i == 15 or i == 0 then need_pillar = true end
     if need_pillar then table.insert(take, pillar) end
 
     minetest.register_node("cobble_wall:wall_"..i, {
@@ -94,7 +95,7 @@ for i = 1, 14 do
     })
 end
 
-minetest.register_node("cobble_wall:wall_15", {
+minetest.register_node("cobble_wall:wall_0", {
     drawtype = "nodebox",
     tile_images = {"default_cobble.png"},
     paramtype = "light",
