@@ -1,8 +1,8 @@
 -- Signs plugin
 -- Based on xyz's code
 
-local sign_width = 110
-local poster_width = 160
+local sign_width = 200
+local poster_width = 320 
 local sign_padding = 12
 
 -- avoiding of bug with russian input ====================================== --
@@ -70,7 +70,7 @@ if not chars_file then
     print("[signs] E: character map file not found")
 else
     for line in chars_file:lines() do
-        char, width, img = string.match(line, "(.+) (%d) (.+)")
+        char, width, img = string.match(line, "(.+) (%d+) (.+)")
         charmap[char] = img
         charwidth[img] = width
     end
