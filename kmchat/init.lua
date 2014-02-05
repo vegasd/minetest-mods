@@ -60,15 +60,18 @@ chat_colors = {
 
 local hud_ids = {}
 
-function addMessage(player, nickname, message)
-    local new_text = nickname .. ": " .. message
-    local temp
+function addMessage(player, nickname, new_text, new_color)
+    local temp_text
+    local temp_color
     for i,id in pairs(hud_ids) do
         print(id)
         print()
-        temp = player:hud_get(id).text
+        temp_text = player:hud_get(id).text
+        temp_color = player:hud_get(id).number
+        player:hud_change(id, "number", new_color)
         player:hud_change(id, "text", new_text)
-        new_text = temp
+        new_text = temp_text
+        new_color = temp_color
     end
 end
 
@@ -106,54 +109,62 @@ minetest.register_on_chat_message(function(name, message)
     sym = message:sub(0,1)
     submes = message:sub(2)
 
-    minetest.chat_send_player(name, "Everybody see:\n", false)
-
     if sym == "?" and string.len(message) ~= 1 then
         fmt = FMT_OOC
-        minetest.chat_send_all(string.format(fmt, showname, submes))
-        return true
-    end
-
-    if sym == "_"  then
+        range = 30000
+        color = 0x00FFFF
+    elseif sym == "_"  then
         fmt = FMT_OOC
         range = RANGE_NORMAL
+        color = 0xFF00FF
     elseif sym == "!" then
         fmt = FMT_SHOUT
         range = RANGE_SHOUT
+        color = 0xFFFFFF
     elseif sym == "=" then
         fmt = FMT_WHISPER
         range = RANGE_WHISPER
+        color = 0xFFFFFF
     elseif sym == "*" then
         fmt = FMT_ME
         range = RANGE_NORMAL
+        color = 0xFFFF00
     elseif sym == "#" and minetest.check_player_privs(name, {gm=true}) then
         fmt = FMT_GM
         range = RANGE_NORMAL
+        color = 0xFFFF00
     elseif sym == "d" and submes == "4" then
         fmt = "*** %s rolls d4 and result is %d ***"
         submes = math.random(4)
         range = RANGE_NORMAL
+        color = 0xFFFF00
     elseif sym == "d" and submes == "6" then
         fmt = "*** %s rolls d6 and result is %d ***"
         submes = math.random(6)
         range = RANGE_NORMAL
+        color = 0xFFFF00
     elseif sym == "d" and submes == "8" then
         fmt = "*** %s rolls d8 and result is %d ***"
         submes = math.random(8)
         range = RANGE_NORMAL
+        color = 0xFFFF00
     elseif sym == "d" and submes == "10" then
         fmt = "*** %s rolls d10 and result is %d ***"
         submes = math.random(10)
         range = RANGE_NORMAL
+        color = 0xFFFF00
     elseif sym == "d" and submes == "12" then
         fmt = "*** %s rolls d12 and result is %d ***"
         submes = math.random(12)
         range = RANGE_NORMAL
+        color = 0xFFFF00
     elseif sym == "d" and submes == "20" then
         fmt = "*** %s rolls d20 and result is %d ***"
         submes = math.random(20)
         range = RANGE_NORMAL
+        color = 0xFFFF00
     else
+        color = 0xFFFFFF
         fmt = FMT_NORMAL
         submes = message
         range = RANGE_NORMAL
@@ -171,10 +182,10 @@ minetest.register_on_chat_message(function(name, message)
         recieverpos = pls[i]:getpos()
         if math.sqrt((senderpos.x-recieverpos.x)^2 + (senderpos.y-recieverpos.y)^2 + (senderpos.z-recieverpos.z)^2) < range then
             while message:len() > MAX_LENGTH do
-                addMessage(pls[i], name, message:sub(0,MAX_LENGTH))
+                addMessage(pls[i], name, message:sub(0,MAX_LENGTH), color)
                 message = message:sub(MAX_LENGTH+1)
             end
-            addMessage(pls[i], name, message)
+            addMessage(pls[i], name, string.format(fmt, showname, submes), color)
 
             return true
         elseif minetest.check_player_privs(pls[i]:get_player_name(), {gm=true}) then
