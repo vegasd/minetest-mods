@@ -48,6 +48,10 @@ end)
 
 minetest.register_on_chat_message(function(name,message)
     local player = minetest.get_player_by_name("singleplayer")
+    while message:len() > MAX_LENGTH do
+        addMessage(player, name, message:sub(0,MAX_LENGTH))
+        message = message:sub(MAX_LENGTH+1)
+    end
     addMessage(player, name, message)
 
     return true
