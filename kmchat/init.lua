@@ -187,8 +187,7 @@ minetest.register_on_chat_message(function(name, message)
 
             return true
         elseif minetest.check_player_privs(pls[i]:get_player_name(), {gm=true}) then
-            -- for DSs or KAOS - TODO: make it differ from regular message
-            minetest.chat_send_player(pls[i]:get_player_name(), "~~~ " .. string.format(fmt, showname, submes), false)
+            addMessage(pls[i], name, string.format(fmt, showname, submes), 0x666666)
         end
     end
 
