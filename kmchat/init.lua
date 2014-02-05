@@ -58,12 +58,14 @@ chat_colors = {
 }
 -- config zone }}}
 
-local hud_ids = {}
+firsthud = nil
 
 function addMessage(player, nickname, new_text, new_color)
+    print(firsthud)
     local temp_text
     local temp_color
-    for i,id in pairs(hud_ids) do
+    for id = firsthud, (firsthud+MESSAGES_ON_SCREEN-1) do
+        print("aaa"..id)
         temp_text = player:hud_get(id).text
         temp_color = player:hud_get(id).number
         player:hud_change(id, "number", new_color)
@@ -90,7 +92,10 @@ minetest.register_on_joinplayer(function(player)
                 offset = {x=0, y=-i*FONT_HEIGHT}
             })
             print("ADDED HUD: " .. hud_id)
-            table.insert(hud_ids, hud_id)
+            if firsthud == nil then
+                print(1)
+                firsthud = hud_id
+            end
         end
         end, player)
 end)
