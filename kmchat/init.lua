@@ -64,8 +64,6 @@ function addMessage(player, nickname, new_text, new_color)
     local temp_text
     local temp_color
     for i,id in pairs(hud_ids) do
-        print(id)
-        print()
         temp_text = player:hud_get(id).text
         temp_color = player:hud_get(id).number
         player:hud_change(id, "number", new_color)
