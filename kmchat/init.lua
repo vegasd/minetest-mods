@@ -42,7 +42,7 @@ RANGE_WHISPER = 3
 
 GM_PREFIX = "[GM] "
 MESSAGES_ON_SCREEN = 10
-MAX_LENGTH         = 30
+MAX_LENGTH         = 50
 LEFT_INDENT        = 0.01
 TOP_INDENT         = 0.92
 FONT_WIDTH         = 12
@@ -178,12 +178,13 @@ minetest.register_on_chat_message(function(name, message)
     senderpos = pl:getpos()
     for i = 1, #pls do
         recieverpos = pls[i]:getpos()
+        message = string.format(fmt, showname, submes)
         if math.sqrt((senderpos.x-recieverpos.x)^2 + (senderpos.y-recieverpos.y)^2 + (senderpos.z-recieverpos.z)^2) < range then
             while message:len() > MAX_LENGTH do
                 addMessage(pls[i], name, message:sub(0,MAX_LENGTH), color)
                 message = message:sub(MAX_LENGTH+1)
             end
-            addMessage(pls[i], name, string.format(fmt, showname, submes), color)
+            addMessage(pls[i], name, message, color)
 
             return true
         elseif minetest.check_player_privs(pls[i]:get_player_name(), {gm=true}) then
