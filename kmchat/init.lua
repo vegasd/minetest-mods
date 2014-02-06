@@ -1,5 +1,5 @@
 -- kmchat - a simple local chat mod for minetest
--- Copyright (C) 2013 hunterdelyx1, vegasd (Konungstvo Midgard)
+-- Copyright (C) 2014 hunterdelyx1, vegasd, sullome (Konungstvo Midgard)
 --
 -- This file is part of KMRP minetest-mods
 --
