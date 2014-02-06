@@ -10,6 +10,8 @@ local fire_struct ={
 --
 
 minetest.register_node("campfire:fireplace", {
+    description = "Fireplace",
+    stack_max = 1,
     tiles = { "default_cobble.png"},
     paramtype2 = "facedir",
     drawtype = "nodebox",
@@ -41,6 +43,7 @@ minetest.register_node("campfire:fireplace_fire", {
     paramtype2 = "facedir",
     drawtype = "nodebox",
     paramtype = "light",
+    drop = "campfire:fireplace",
 
     node_box = {
         type = "fixed",
@@ -52,7 +55,7 @@ minetest.register_node("campfire:fireplace_fire", {
             },
         },
 
-    groups = {dig_immediate=2, hot=1},
+    groups = {dig_immediate=2, hot=1, not_in_creative_inventory=1},
     light_source = 50,
     damage_per_second = 4,
 
@@ -66,8 +69,8 @@ minetest.register_node("campfire:fireplace_fire", {
     end
 })
 
-local frame_max = 2 -- amount of frames in fire animation
-local frame_speed = 1 -- animation speed: seconds on frame
+local frame_max = 8 -- amount of frames in fire animation
+local frame_speed = 0.2 -- animation speed: seconds on frame
 
 local frame = 1
 local frame_time = 0
@@ -98,9 +101,7 @@ minetest.register_entity("campfire:fire", {
 
 -- Updating fire texture for animation. DONT TOUCH, MAZAFUCKER! I know that it can be crutch. I'll sleep and fix it by myself.
     on_step = function(self, dtime)
-        if frame_time > frame_speed then
             self.object:set_properties({textures ={"campfire_fire_"..frame ..".png"}})
-        end
     end
 --
 })
