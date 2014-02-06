@@ -56,7 +56,7 @@ chat_colors = {
 }
 -- config zone }}}
 
-firsthud = 666  -- FIXME: magic number, just filling as wrong value
+firsthud = nil
 
 function addMessage(player, nickname, new_text, new_color)
     local temp_text
@@ -92,7 +92,7 @@ minetest.register_on_joinplayer(function(player)
                 offset = {x=0, y=-i*FONT_HEIGHT}
             })
             print("ADDED HUD: " .. hud_id)
-            if firsthud == 666 then
+            if not firsthud then
                 print("firsthud: ".. hud_id)
                 firsthud = hud_id
             end
