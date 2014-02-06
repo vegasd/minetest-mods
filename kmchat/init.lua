@@ -25,8 +25,6 @@
 --  * GM-prefixes
 --  * Dices
 
--- TODO: colorize chat (chat colors are not implemented in Minetest for now)
-
 
 -- config zone {{{
 FMT_OOC = "%s (OOC): (( %s ))"
@@ -58,30 +56,32 @@ chat_colors = {
 }
 -- config zone }}}
 
-firsthud = nil
+firsthud = 666  -- FIXME: magic number, just filling as wrong value
 
 function addMessage(player, nickname, new_text, new_color)
-    print(firsthud)
     local temp_text
     local temp_color
+    local hud
     for id = firsthud, (firsthud+MESSAGES_ON_SCREEN-1) do
-        print("aaa"..id)
-        temp_text = player:hud_get(id).text
-        temp_color = player:hud_get(id).number
-        player:hud_change(id, "number", new_color)
-        player:hud_change(id, "text", new_text)
-        new_text = temp_text
-        new_color = temp_color
+        hud = player:hud_get(id)
+        if hud.name == "chat" then
+            temp_text = hud.text
+            temp_color = hud.number
+            player:hud_change(id, "number", new_color)
+            player:hud_change(id, "text", new_text)
+            new_text = temp_text
+            new_color = temp_color
+        end
     end
 end
 
 
 minetest.register_on_joinplayer(function(player)
-    minetest.after(1, function(player)
-        for i=1,MESSAGES_ON_SCREEN do
+    minetest.after(2, function(player)
+        for i = 1, MESSAGES_ON_SCREEN do
             local hud_id = player:hud_add({
                 hud_elem_type = "text",
-                text = i,
+                text = "",
                 position = {x = LEFT_INDENT, y = TOP_INDENT},
                 name = "chat",
                 scale = {x=500, y=50},
@@ -92,8 +92,8 @@ minetest.register_on_joinplayer(function(player)
                 offset = {x=0, y=-i*FONT_HEIGHT}
             })
             print("ADDED HUD: " .. hud_id)
-            if firsthud == nil then
-                print(1)
+            if firsthud == 666 then
+                print("firsthud: ".. hud_id)
                 firsthud = hud_id
             end
         end
@@ -196,7 +196,6 @@ minetest.register_on_chat_message(function(name, message)
             end
             addMessage(pls[i], name, message, color)
 
-            return true
         elseif minetest.check_player_privs(pls[i]:get_player_name(), {gm=true}) then
             addMessage(pls[i], name, string.format(fmt, showname, submes), 0x666666)
         end
