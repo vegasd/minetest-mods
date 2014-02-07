@@ -21,39 +21,30 @@
 -- Features:
 --  * Local chat
 --  * Comfortable whisper and shout w/o commands
+--  * Colorful chat
 --  * Local and global OOC-chat
 --  * GM-prefixes
 --  * Dices
 
-
 -- config zone {{{
-FMT_OOC = "%s (OOC): (( %s ))"
-FMT_SHOUT = "%s (shouts): %s"
-FMT_WHISPER = "%s (whispers): %s"
-FMT_ME = "* %s %s"
-FMT_GM = "*** %s: %s ***"
-FMT_NORMAL = "%s: %s"
-
-RANGE_NORMAL = 18
-RANGE_SHOUT = 68
-RANGE_WHISPER = 3
-
-GM_PREFIX = "[GM] "
+formats = {
+-- ["MATCH"]        = {"FORMAT"                  RANGE  COLOR     PRIV}, --
+   ["_(.+)"]        = {"%s (OOC): (( %s ))",     18,    0xF0A010, nil },
+   ["%(%((.+)%)%)"] = {"%s (OOC): (( %s ))",     18,    0xF0A010, nil },
+   ["\!(.+)"]       = {"%s (shouts): %s",        68,    0xFFFFFF, nil },
+   ["=(.+)"]        = {"%s (whispers): %s",      3,     0xFFFFFF, nil },
+   ["\*(.+)"]       = {"* %s %s",                18,    0xFFFF00, nil },
+   ["\#(.+)"]       = {"*** %s: %s ***",         18,    0xFFFF00, "gm"},
+   ["\?(.+)"]       = {"%s (OOC): %s ***",       31000, 0x00FFFF, nil },
+}
+DEFAULTRANGE       = 18
+GM_PREFIX          = "[GM] "
 MESSAGES_ON_SCREEN = 10
 MAX_LENGTH         = 100
 LEFT_INDENT        = 0.01
 TOP_INDENT         = 0.92
 FONT_WIDTH         = 12
 FONT_HEIGHT        = 28
-
-chat_colors = {
-    ooc     = 0xF0A010,
-    help    = 0x10F0F0,
-    scream  = 0xFFFFFF,
-    normal  = 0xFFFFFF,
-    whisper = 0xFFFFFF,
-    action  = 0x10F010
-}
 -- config zone }}}
 
 firsthud = nil
@@ -91,90 +82,51 @@ minetest.register_on_joinplayer(function(player)
                 alignment = {x=1, y=0},
                 offset = {x=0, y=-i*FONT_HEIGHT}
             })
-            print("ADDED HUD: " .. hud_id)
             if not firsthud then
-                print("firsthud: ".. hud_id)
                 firsthud = hud_id
             end
         end
         end, player)
 end)
 
-
-
 minetest.register_privilege("gm", "Gives accses to reading all messages in the chat")
 
 minetest.register_on_chat_message(function(name, message)
-
+    fmt = "%s: %s"
+    range = DEFAULTRANGE
+    color = 0xFFFFFF
     pl = minetest.get_player_by_name(name)
     pls = minetest.get_connected_players()
+    -- formats (see config zone)
+    for m, f in pairs(formats) do
+        submes = string.match(message, m)
+        if submes then
+            print(f[4])
+            if not f[4] then
+                fmt = f[1]
+                range = f[2]
+                color = f[3]
+                break
+            elseif minetest.check_player_privs(name, {[f[4]]=true}) then
+                fmt = f[1]
+                range = f[2]
+                color = f[3]
+                break
+            end
+        end
+    end
 
-    sym = message:sub(0,1)
-    submes = message:sub(2)
-
-    if sym == "?" and string.len(message) ~= 1 then
-        fmt = FMT_OOC
-        range = 30000
-        color = 0x00FFFF
-    elseif sym == "_"  then
-        fmt = FMT_OOC
-        range = RANGE_NORMAL
-        color = 0xFF00FF
-    elseif sym == "!" then
-        fmt = FMT_SHOUT
-        range = RANGE_SHOUT
-        color = 0xFFFFFF
-    elseif sym == "=" then
-        fmt = FMT_WHISPER
-        range = RANGE_WHISPER
-        color = 0xFFFFFF
-    elseif sym == "*" then
-        fmt = FMT_ME
-        range = RANGE_NORMAL
-        color = 0xFFFF00
-    elseif sym == "#" and minetest.check_player_privs(name, {gm=true}) then
-        fmt = FMT_GM
-        range = RANGE_NORMAL
-        color = 0xFFFF00
-    elseif sym == "d" and submes == "4" then
-        fmt = "*** %s rolls d4 and result is %d ***"
-        submes = math.random(4)
-        range = RANGE_NORMAL
-        color = 0xFFFF00
-    elseif sym == "d" and submes == "6" then
-        fmt = "*** %s rolls d6 and result is %d ***"
-        submes = math.random(6)
-        range = RANGE_NORMAL
-        color = 0xFFFF00
-    elseif sym == "d" and submes == "8" then
-        fmt = "*** %s rolls d8 and result is %d ***"
-        submes = math.random(8)
-        range = RANGE_NORMAL
-        color = 0xFFFF00
-    elseif sym == "d" and submes == "10" then
-        fmt = "*** %s rolls d10 and result is %d ***"
-        submes = math.random(10)
-        range = RANGE_NORMAL
-        color = 0xFFFF00
-    elseif sym == "d" and submes == "12" then
-        fmt = "*** %s rolls d12 and result is %d ***"
-        submes = math.random(12)
-        range = RANGE_NORMAL
-        color = 0xFFFF00
-    elseif sym == "d" and submes == "20" then
-        fmt = "*** %s rolls d20 and result is %d ***"
-        submes = math.random(20)
-        range = RANGE_NORMAL
-        color = 0xFFFF00
-    else
-        color = 0xFFFFFF
-        fmt = FMT_NORMAL
+    -- dices
+    dice = string.match(message, "d(%d+)")
+    if dice=="4" or dice=="6" or dice=="8" or dice=="10" or dice=="12" or dice=="20" then
+        submes = math.random(dice)
+    end
+    if not submes then
         submes = message
-        range = RANGE_NORMAL
     end
 
     -- GM's prefix
-    if minetest.check_player_privs(name, {gm=true,}) then
+    if minetest.check_player_privs(name, {["gm"]=true,}) then
         showname = GM_PREFIX .. name
     else
         showname = name
