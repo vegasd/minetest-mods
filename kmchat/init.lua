@@ -29,15 +29,19 @@
 -- config zone {{{
 formats = {
 -- ["MATCH"]        = {"FORMAT"                  RANGE  COLOR     PRIV}, --
-   ["_(.+)"]        = {"%s (OOC): (( %s ))",     18,    0xF0A010, nil },
-   ["%(%((.+)%)%)"] = {"%s (OOC): (( %s ))",     18,    0xF0A010, nil },
+   ["_(.+)"]        = {"%s (OOC): (( %s ))",     18,    0x9966AA, nil },
+   ["%(%((.+)%)%)"] = {"%s (OOC): (( %s ))",     18,    0x9966AA, nil },
    ["\!(.+)"]       = {"%s (shouts): %s",        68,    0xFFFFFF, nil },
-   ["=(.+)"]        = {"%s (whispers): %s",      3,     0xFFFFFF, nil },
+   ["=(.+)"]        = {"%s (whispers): %s",      3,     0xE0EEE0, nil },
    ["\*(.+)"]       = {"* %s %s",                18,    0xFFFF00, nil },
    ["\#(.+)"]       = {"*** %s: %s ***",         18,    0xFFFF00, "gm"},
-   ["\?(.+)"]       = {"%s (OOC): %s ***",       31000, 0x00FFFF, nil },
+   ["\?(.+)"]       = {"%s (OOC): %s ***",       31000, 0x20EEDD, nil },
 }
-DEFAULTRANGE       = 18
+DEFAULT_FORMAT     = "%s: %s" 
+DEFAULT_RANGE      = 18
+DEFAULT_COLOR      = 0xEEF3EE
+DICE_COLOR         = 0xFFFF00
+GMSPY_COLOR        = 0x666666
 GM_PREFIX          = "[GM] "
 MESSAGES_ON_SCREEN = 10
 MAX_LENGTH         = 100
@@ -104,17 +108,16 @@ end)
 minetest.register_privilege("gm", "Gives accses to reading all messages in the chat")
 
 minetest.register_on_chat_message(function(name, message)
-    fmt = "%s: %s"
-    range = DEFAULTRANGE
-    color = 0xFFFFFF
+    fmt = DEFAULT_FORMAT 
+    range = DEFAULT_RANGE
+    color = DEFAULT_COLOR
     pl = minetest.get_player_by_name(name)
     pls = minetest.get_connected_players()
     -- formats (see config zone)
     for m, f in pairs(formats) do
         submes = string.match(message, m)
         if submes then
-            print(f[4])
-            if not f[4] then
+            if not f[4] then  -- if PRIV==nil
                 fmt = f[1]
                 range = f[2]
                 color = f[3]
@@ -131,6 +134,8 @@ minetest.register_on_chat_message(function(name, message)
     -- dices
     dice = string.match(message, "d(%d+)")
     if dice=="4" or dice=="6" or dice=="8" or dice=="10" or dice=="12" or dice=="20" then
+        fmt = "*** %s rolls d"..dice.." and the result is %s ***"
+        color = DICE_COLOR
         submes = math.random(dice)
     end
     if not submes then
@@ -139,18 +144,16 @@ minetest.register_on_chat_message(function(name, message)
 
     -- GM's prefix
     if minetest.check_player_privs(name, {["gm"]=true,}) then
-        showname = GM_PREFIX .. name
-    else
-        showname = name
+        name = GM_PREFIX .. name
     end
 
     senderpos = pl:getpos()
     for i = 1, #pls do
         recieverpos = pls[i]:getpos()
         if math.sqrt((senderpos.x-recieverpos.x)^2 + (senderpos.y-recieverpos.y)^2 + (senderpos.z-recieverpos.z)^2) < range then
-            sendMessage(pls[i], string.format(fmt, showname, submes), color)
+            sendMessage(pls[i], string.format(fmt, name, submes), color)
         elseif minetest.check_player_privs(pls[i]:get_player_name(), {gm=true}) then
-            sendMessage(pls[i], string.format(fmt, showname, submes), 0x666666)
+            sendMessage(pls[i], string.format(fmt, name, submes), GMSPY_COLOR)
         end
     end
 
