@@ -49,7 +49,7 @@ FONT_HEIGHT        = 28
 
 firsthud = nil
 
-function addMessage(player, nickname, new_text, new_color)
+function addMessage(player, new_text, new_color)
     local temp_text
     local temp_color
     local hud
@@ -66,6 +66,18 @@ function addMessage(player, nickname, new_text, new_color)
     end
 end
 
+function sendMessage(player, message, color)
+    local splitter
+    while message:len() > MAX_LENGTH do
+        splitter = string.find (message, " ", MAX_LENGTH)
+        if splitter == nil then
+            splitter = MAX_LENGTH
+        end
+        addMessage(player, message:sub(0,splitter), color)
+        message = message:sub(splitter+1)
+    end
+    addMessage(player, message, color)
+end
 
 minetest.register_on_joinplayer(function(player)
     minetest.after(2, function(player)
@@ -135,21 +147,10 @@ minetest.register_on_chat_message(function(name, message)
     senderpos = pl:getpos()
     for i = 1, #pls do
         recieverpos = pls[i]:getpos()
-        message = string.format(fmt, showname, submes)
         if math.sqrt((senderpos.x-recieverpos.x)^2 + (senderpos.y-recieverpos.y)^2 + (senderpos.z-recieverpos.z)^2) < range then
-            local splitter
-            while message:len() > MAX_LENGTH do
-                splitter = string.find (message, " ", MAX_LENGTH)
-                if splitter == nil then
-                    splitter = MAX_LENGTH
-                end
-                addMessage(pls[i], name, message:sub(0,splitter), color)
-                message = message:sub(splitter+1)
-            end
-            addMessage(pls[i], name, message, color)
-
+            sendMessage(pls[i], string.format(fmt, showname, submes), color)
         elseif minetest.check_player_privs(pls[i]:get_player_name(), {gm=true}) then
-            addMessage(pls[i], name, string.format(fmt, showname, submes), 0x666666)
+            sendMessage(pls[i], string.format(fmt, showname, submes), 0x666666)
         end
     end
 
