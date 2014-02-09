@@ -31,7 +31,7 @@ formats = {
 -- ["MATCH"]        = {"FORMAT"                  RANGE  COLOR     PRIV}, --
    ["_(.+)"]        = {"%s (OOC): (( %s ))",     18,    0x9966AA, nil },
    ["%(%((.+)%)%)"] = {"%s (OOC): (( %s ))",     18,    0x9966AA, nil },
-   ["\!(.+)"]       = {"%s (shouts): %s",        68,    0xFFFFFF, nil },
+   ["!(.+)"]       = {"%s (shouts): %s",        68,    0xFFFFFF, nil },
    ["=(.+)"]        = {"%s (whispers): %s",      3,     0xE0EEE0, nil },
    ["\*(.+)"]       = {"* %s %s",                18,    0xFFFF00, nil },
    ["\#(.+)"]       = {"*** %s: %s ***",         18,    0xFFFF00, "gm"},
