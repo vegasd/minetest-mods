@@ -160,7 +160,7 @@ function doors:register_door(name, def)
 	})
 	
 	minetest.register_node(name.."_t_1", {
-		tiles = {tt[3].."^[transformr180", tt[2], tt[2].."^[transformfx", tt[2].."^[transformr180", tt[1], tt[1].."^[transformfx"},
+		tiles = {tt[3].."^[transformr180", tt[2], tt[2], tt[2].."^[transformr180", tt[1], tt[1].."^[transformfx"},
 		paramtype = "light",
 		paramtype2 = "facedir",
 		drop = name,
