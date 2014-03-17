@@ -251,6 +251,7 @@ function doors:register_door(name, def)
 	
 end
 
+-- wooden door
 doors:register_door("doors:door_wood", {
 	description = "Wooden Door",
 	inventory_image = "door_wood.png",
@@ -268,8 +269,46 @@ minetest.register_craft({
 	}
 })
 
+-- Strong wooden door
+doors:register_door("doors:door_wood_iron_frame", {
+	description = "Strong wooden Door with iron frame",
+	inventory_image = "door_wood_if.png",
+	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=2,flammable=2,door=1},
+	tiles_bottom = {"door_wood_if_b.png", "door_wood_if_c.png","door_wood_if_d.png"},
+	tiles_top = {"door_wood_if_a.png", "door_wood_if_c.png","door_wood_if_d.png"},
+})
+
+minetest.register_craft({
+	output = "doors:door_wood_iron_frame",
+	recipe = {
+		{"default:steel_ingot", "default:steel_ingot"},
+		{"group:wood", "group:wood"},
+		{"group:wood", "group:wood"}
+	}
+})
+
+-- Weak wooden door
+doors:register_door("doors:door_wood_weak", {
+	description = "Weak wooden door",
+	inventory_image = "door_wood_weak.png",
+	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=2,flammable=2,door=1},
+	tiles_bottom = {"door_wood_weak_b.png", "door_wood_weak_c.png","door_wood_weak_d.png"},
+	tiles_top = {"door_wood_weak_a.png", "door_wood_weak_c.png","door_wood_weak_d.png"},
+})
+
+minetest.register_craft({
+	output = "doors:door_wood_weak",
+	recipe = {
+		{"group:wood", ""},
+		{"group:wood", "group:wood"},
+		{"group:wood", "group:wood"}
+	}
+})
+
+
+-- Ordinary steel door
 doors:register_door("doors:door_steel", {
-	description = "Steel Door",
+	description = "Steel door",
 	inventory_image = "door_steel.png",
 	groups = {snappy=1,bendy=2,cracky=1,melty=2,level=2,door=1},
 	tiles_bottom = {"door_steel_b.png", "door_steel_c.png", "door_steel_d.png"},
@@ -283,6 +322,44 @@ minetest.register_craft({
 		{"default:steel_ingot", "default:steel_ingot"},
 		{"default:steel_ingot", "default:steel_ingot"},
 		{"default:steel_ingot", "default:steel_ingot"}
+	}
+})
+
+-- Jail door
+doors:register_door("doors:door_steel_jail", {
+	description = "Jail steel door",
+	inventory_image = "door_steel_jail.png",
+	groups = {snappy=1,bendy=2,cracky=1,melty=2,level=2,door=1},
+	tiles_bottom = {"door_steel_jail_b.png", "door_steel_jail_c.png", "door_steel_jail_d.png"},
+	tiles_top = {"door_steel_jail_a.png", "door_steel_jail_c.png", "door_steel_jail_d.png"},
+	only_placer_can_open = true,
+})
+
+minetest.register_craft({
+	output = "doors:door_steel_jail",
+	recipe = {
+		{"default:steel_ingot", ""},
+		{"default:steel_ingot", "default:steel_ingot"},
+		{"default:steel_ingot", "default:steel_ingot"}
+	}
+})
+
+-- Beautiful steel door
+doors:register_door("doors:door_steel_bl", {
+	description = "Beautiful steel door",
+	inventory_image = "door_steel_bl.png",
+	groups = {snappy=1,bendy=2,cracky=1,melty=2,level=2,door=1},
+	tiles_bottom = {"door_steel_bl_b.png", "door_steel_bl_c.png", "door_steel_bl_d.png"},
+	tiles_top = {"door_steel_bl_a.png", "door_steel_bl_c.png", "door_steel_bl_d.png"},
+	only_placer_can_open = true,
+})
+
+minetest.register_craft({
+	output = "doors:door_steel_bl",
+	recipe = {
+		{"default:steel_ingot", "default:steel_ingot"},
+		{"default:steel_ingot", "default:steel_ingot"},
+		{"default:steel_ingot", ""}
 	}
 })
 
