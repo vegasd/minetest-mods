@@ -1,4 +1,5 @@
 real_locks = {}
+real_locks.doors = {}
 local NODEMETA_STR="lock_pass"
 
 --{{{Set metadata
@@ -8,6 +9,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
     if formname == "real_locks:keyform" then
         inv = player:get_inventory()
         for i, itemname in ipairs({"real_locks:lock", "real_locks:key"}) do
+            print("Added " ..itemname.. " with metadata " ..fields.keymeta)
             inv:add_item("main", {
                 name = itemname,
                 count = 1,
@@ -19,7 +21,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 minetest.register_on_craft(function(result, player, old_craft_grid, inv)
-    if result:get_name() == "real_locks:key" then
+    local name = result:get_name()
+    if name == "real_locks:key" then
         minetest.show_formspec(player:get_player_name(), "real_locks:keyform", [[
             field[keymeta;Choose key form (password):;]
             ]])
@@ -52,6 +55,19 @@ function real_locks:register_door(name, def)
     --}}}
 	
     --{{{Item registration
+
+    -- Add to register_on_craft check
+    minetest.register_on_craft(function(result, player, old_craft_grid, inv)
+        if result:get_name() == name then
+            for i, item in ipairs(old_craft_grid) do
+                if item:get_name() == "real_locks:lock" then
+                    result:set_metadata(item:get_metadata())
+                    return result
+                end 
+            end
+        end
+    end)
+
 	minetest.register_craftitem(name, {
 		description = def.description,
 		inventory_image = def.inventory_image,
