@@ -1,46 +1,41 @@
 real_locks = {}
-real_locks.meta = {}
+local NODEMETA_STR="lock_pass"
 
 --{{{Set metadata
 
 --{{{Crutch!!!
 minetest.register_on_player_receive_fields(function(player, formname, fields)
     if formname == "real_locks:keyform" then
-        real_locks.meta[player:get_player_name()] = fields.keymeta
+        inv = player:get_inventory()
+        for i, itemname in ipairs({"real_locks:lock", "real_locks:key"}) do
+            inv:add_item("main", {
+                name = itemname,
+                count = 1,
+                wear = 0,
+                metadata = fields.keymeta
+            })
+        end
     end
 end)
 
-minetest.register_craft_predict(function(itemstack, player, old_craft_grid, inv)
-    if itemstack:get_name() == "real_locks:key" then
+minetest.register_on_craft(function(result, player, old_craft_grid, inv)
+    if result:get_name() == "real_locks:key" then
         minetest.show_formspec(player:get_player_name(), "real_locks:keyform", [[
             field[keymeta;Choose key form (password):;]
             ]])
+        return ItemStack(nil)
     end
 end)
 --}}}
 
-minetest.register_on_craft(function(result, player, old_craft_grid, inv)
-    local metainf = real_locks.meta[player:get_player_name()]
-    result:set_metadata(metainf)
-    inv:add_item("main", {
-        name = "real_locks:lock",
-        count = 1,
-        wear = 0,
-        metadata = metainf
-    })
-    print(result:get_metadata())
-    real_locks.meta[player:get_player_name()] = nil
-
-    return result
-end)
 --}}}
 
 --{{{Register door with lock
 function real_locks:register_door(name, def)
-    --{{{Copy from "doors" mod but without item registration
+    --{{{Copy from "doors" mod
 	def.groups.not_in_creative_inventory = 1
 	
-	local box = {{-0.5, -0.5, -0.5,   0.5, 0.5, -0.5+1.5/16}}
+	local box = {{-0.5, -0.5, -0.5,   0.5, 0.5, -0.5+1.5/8}}
 	
 	if not def.node_box_bottom then
 		def.node_box_bottom = box
@@ -54,7 +49,72 @@ function real_locks:register_door(name, def)
 	if not def.selection_box_top then
 		def.selection_box_top = box
 	end
+    --}}}
 	
+    --{{{Item registration
+	minetest.register_craftitem(name, {
+		description = def.description,
+		inventory_image = def.inventory_image,
+		
+		on_place = function(itemstack, placer, pointed_thing)
+			if not pointed_thing.type == "node" then
+				return itemstack
+			end
+			
+			local ptu = pointed_thing.under
+			local nu = minetest.get_node(ptu)
+			if minetest.registered_nodes[nu.name].on_rightclick then
+				return minetest.registered_nodes[nu.name].on_rightclick(ptu, nu, placer, itemstack)
+			end
+			
+			local pt = pointed_thing.above
+			local pt2 = {x=pt.x, y=pt.y, z=pt.z}
+			pt2.y = pt2.y+1
+			if
+				not minetest.registered_nodes[minetest.get_node(pt).name].buildable_to or
+				not minetest.registered_nodes[minetest.get_node(pt2).name].buildable_to or
+				not placer or
+				not placer:is_player()
+			then
+				return itemstack
+			end
+			
+			local p2 = minetest.dir_to_facedir(placer:get_look_dir())
+			local pt3 = {x=pt.x, y=pt.y, z=pt.z}
+			if p2 == 0 then
+				pt3.x = pt3.x-1
+			elseif p2 == 1 then
+				pt3.z = pt3.z+1
+			elseif p2 == 2 then
+				pt3.x = pt3.x+1
+			elseif p2 == 3 then
+				pt3.z = pt3.z-1
+			end
+			if not string.find(minetest.get_node(pt3).name, name.."_b_") then
+				minetest.set_node(pt, {name=name.."_b_1", param2=p2})
+				minetest.set_node(pt2, {name=name.."_t_1", param2=p2})
+			else
+				minetest.set_node(pt, {name=name.."_b_2", param2=p2})
+				minetest.set_node(pt2, {name=name.."_t_2", param2=p2})
+			end
+			
+			local passwd = itemstack:get_metadata()
+			local meta = minetest.get_meta(pt)
+			meta:set_string(NODEMETA_STR, passwd)
+			meta:set_string("infotext", "Locked")
+			meta = minetest.get_meta(pt2)
+			meta:set_string(NODEMETA_STR, passwd)
+			meta:set_string("infotext", "Locked")
+			
+			if not minetest.setting_getbool("creative_mode") then
+				itemstack:take_item()
+			end
+			return itemstack
+		end,
+	})
+    --}}}
+
+    --{{{Copy from "doors" mod (continue)
 	local tt = def.tiles_top
 	local tb = def.tiles_bottom
 	
@@ -79,9 +139,9 @@ function real_locks:register_door(name, def)
 	end
     --}}}
 	
-	local function check_player_priv(pos, player)
+	local function check_player_priv(pos, wield_item)
         if wield_item:get_name() == "real_locks:key" then
-		    local lock_pass = minetest.get_meta(pos):get_string("lock_pass")
+		    local lock_pass = minetest.get_meta(pos):get_string(NODEMETA_STR)
 		    local key_pass = wield_item:get_metadata()
 
 		    return lock_pass == key_pass
@@ -196,8 +256,8 @@ function real_locks:register_door(name, def)
 			after_dig_node(pos, name.."_b_2")
 		end,
 		
-		on_rightclick = function(pos, node, clicker:get_wielded_item())
-			if check_player_priv(pos, clicker) then
+		on_rightclick = function(pos, node, clicker)
+			if check_player_priv(pos, clicker:get_wielded_item()) then
 				on_rightclick(pos, -1, name.."_b_2", name.."_t_1", name.."_b_1", {3,0,1,2})
 			end
 		end,
@@ -206,7 +266,7 @@ function real_locks:register_door(name, def)
 end
 
 real_locks:register_door("real_locks:door_wood", {
-	description = "Wooden Door",
+	description = "Wooden Door with lock",
 	inventory_image = "door_wood.png",
 	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=2,flammable=2,door=1},
 	tiles_bottom = {"door_wood_b.png", "door_brown.png"},
@@ -241,6 +301,14 @@ minetest.register_craft({
     recipe = {
         "default:steel_ingot",
         "default:steel_ingot",
+    },
+})
+minetest.register_craft({
+    type = "shapeless",
+    output = "real_locks:door_wood",
+    recipe = {
+        "doors:door_wood",
+        "real_locks:lock",
     },
 })
 --}}}
