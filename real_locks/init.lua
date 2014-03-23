@@ -1,5 +1,4 @@
 real_locks = {}
-real_locks.doors = {}
 local NODEMETA_STR="lock_pass"
 
 --{{{Set metadata
@@ -9,13 +8,17 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
     if formname == "real_locks:keyform" then
         inv = player:get_inventory()
         for i, itemname in ipairs({"real_locks:lock", "real_locks:key"}) do
-            print("Added " ..itemname.. " with metadata " ..fields.keymeta)
-            inv:add_item("main", {
+            local item = ItemStack({
                 name = itemname,
                 count = 1,
                 wear = 0,
                 metadata = fields.keymeta
             })
+            inv:add_item("main", item)
+            minetest.log("action",
+                "player " ..player:get_player_name()..
+                " crafts " ..item:to_string()
+            )
         end
     end
 end)
@@ -155,16 +158,18 @@ function real_locks:register_door(name, def)
 	end
     --}}}
 	
-	local function check_player_priv(pos, wield_item)
-        if wield_item:get_name() == "real_locks:key" then
-		    local lock_pass = minetest.get_meta(pos):get_string(NODEMETA_STR)
-		    local key_pass = wield_item:get_metadata()
+    if not def.can_open then
+        def.can_open = function (pos, wield_item)
+            if wield_item:get_name() == "real_locks:key" then
+		        local lock_pass = minetest.get_meta(pos):get_string(NODEMETA_STR)
+		        local key_pass = wield_item:get_metadata()
 
-		    return lock_pass == key_pass
-        else
-            return false
-        end
-	end
+		        return lock_pass == key_pass
+            else
+                return false
+            end
+	    end
+    end
 
 	--{{{Node registration
 	minetest.register_node(name.."_b_1", {
@@ -189,7 +194,7 @@ function real_locks:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if check_player_priv(pos, clicker:get_wielded_item()) then
+			if def.can_open(pos, clicker:get_wielded_item()) then
 				on_rightclick(pos, 1, name.."_t_1", name.."_b_2", name.."_t_2", {1,2,3,0})
 			end
 		end,
@@ -217,7 +222,7 @@ function real_locks:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if check_player_priv(pos, clicker:get_wielded_item()) then
+			if def.can_open(pos, clicker:get_wielded_item()) then
 				on_rightclick(pos, -1, name.."_b_1", name.."_t_2", name.."_b_2", {1,2,3,0})
 			end
 		end,
@@ -245,7 +250,7 @@ function real_locks:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if check_player_priv(pos, clicker:get_wielded_item()) then
+			if def.can_open(pos, clicker:get_wielded_item()) then
 				on_rightclick(pos, 1, name.."_t_2", name.."_b_1", name.."_t_1", {3,0,1,2})
 			end
 		end,
@@ -273,7 +278,7 @@ function real_locks:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if check_player_priv(pos, clicker:get_wielded_item()) then
+			if def.can_open(pos, clicker:get_wielded_item()) then
 				on_rightclick(pos, -1, name.."_b_2", name.."_t_1", name.."_b_1", {3,0,1,2})
 			end
 		end,
