@@ -159,7 +159,8 @@ function real_locks:register_door(name, def)
     --}}}
 	
     if not def.can_open then
-        def.can_open = function (pos, wield_item)
+        def.can_open = function (pos, clicker)
+            local wield_item = clicker:get_wielded_item()
             if wield_item:get_name() == "real_locks:key" then
 		        local lock_pass = minetest.get_meta(pos):get_string(NODEMETA_STR)
 		        local key_pass = wield_item:get_metadata()
@@ -194,7 +195,7 @@ function real_locks:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if def.can_open(pos, clicker:get_wielded_item()) then
+			if def.can_open(pos, clicker) then
 				on_rightclick(pos, 1, name.."_t_1", name.."_b_2", name.."_t_2", {1,2,3,0})
 			end
 		end,
@@ -222,7 +223,7 @@ function real_locks:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if def.can_open(pos, clicker:get_wielded_item()) then
+			if def.can_open(pos, clicker) then
 				on_rightclick(pos, -1, name.."_b_1", name.."_t_2", name.."_b_2", {1,2,3,0})
 			end
 		end,
@@ -250,7 +251,7 @@ function real_locks:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if def.can_open(pos, clicker:get_wielded_item()) then
+			if def.can_open(pos, clicker) then
 				on_rightclick(pos, 1, name.."_t_2", name.."_b_1", name.."_t_1", {3,0,1,2})
 			end
 		end,
@@ -278,7 +279,7 @@ function real_locks:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if def.can_open(pos, clicker:get_wielded_item()) then
+			if def.can_open(pos, clicker) then
 				on_rightclick(pos, -1, name.."_b_2", name.."_t_1", name.."_b_1", {3,0,1,2})
 			end
 		end,
@@ -292,6 +293,22 @@ real_locks:register_door("real_locks:door_wood", {
 	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=2,flammable=2,door=1},
 	tiles_bottom = {"door_wood_b.png", "door_brown.png"},
 	tiles_top = {"door_wood_a.png", "door_brown.png"},
+})
+
+real_locks:register_door("real_locks:door_wood_bolt", {
+	description = "Wooden Door with bolt",
+	inventory_image = "door_wood.png",
+	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=2,flammable=2,door=1},
+	tiles_bottom = {"door_wood_b.png", "door_brown.png"},
+	tiles_top = {"door_wood_a.png", "door_brown.png"},
+    can_open = function (pos, clicker)
+        print(dump(minetest.facedir_to_dir(minetest.get_node(pos).param2)))
+        local x = (clicker:getpos().x - pos.x)/math.abs(clicker:getpos().x - pos.x) * minetest.facedir_to_dir(minetest.get_node(pos).param2).x
+        local z = (clicker:getpos().z - pos.z)/math.abs(clicker:getpos().z - pos.z) * minetest.facedir_to_dir(minetest.get_node(pos).param2).z
+        if x == -1 or z == -1 then return true
+        else return false
+        end
+    end
 })
 --}}}
 
