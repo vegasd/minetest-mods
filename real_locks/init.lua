@@ -302,12 +302,14 @@ real_locks:register_door("real_locks:door_wood_bolt", {
 	tiles_bottom = {"door_wood_b.png", "door_brown.png"},
 	tiles_top = {"door_wood_a.png", "door_brown.png"},
     can_open = function (pos, clicker)
-        print(dump(minetest.facedir_to_dir(minetest.get_node(pos).param2)))
-        local x = (clicker:getpos().x - pos.x)/math.abs(clicker:getpos().x - pos.x) * minetest.facedir_to_dir(minetest.get_node(pos).param2).x
-        local z = (clicker:getpos().z - pos.z)/math.abs(clicker:getpos().z - pos.z) * minetest.facedir_to_dir(minetest.get_node(pos).param2).z
-        if x == -1 or z == -1 then return true
-        else return false
+        print(minetest.get_node(pos).name)
+        if string.find(minetest.get_node(pos).name, "_1") then
+            local door_facedir = minetest.get_node(pos).param2
+            local clicker_facedir = minetest.dir_to_facedir(vector.direction(clicker:getpos(),pos))
+            if door_facedir ~= clicker_facedir then return false
+            end
         end
+        return true
     end
 })
 --}}}
