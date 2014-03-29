@@ -8,5 +8,7 @@ minetest.register_craftitem("clothing:test", {
         local skin = default.registered_player_models["character.x"].textures
         skin[1] = skin[1] .. "^" .. "clothing_test.png"
         default.player_set_textures(placer, skin)
+        itemstack:take_item()
+        return itemstack
     end
 })
