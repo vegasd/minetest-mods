@@ -1,3 +1,10 @@
+clothing = {}
+
+minetest.register_on-newplayer(function(player)
+    local skin = default.registered_player_models["character.x"].textures
+    clothing[player:get_player_name()] = {skin}
+end)
+
 minetest.register_craftitem("clothing:test", {
     decription = "Test cloth",
     inventory_image = "clothing_test.png",
