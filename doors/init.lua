@@ -1,25 +1,11 @@
 doors = {}
 
--- Registers a door
---  name: The name of the door
---  def: a table with the folowing fields:
---    description
---    inventory_image
---    groups
---    tiles_bottom: the tiles of the bottom part of the door {front, side}
---    tiles_top: the tiles of the bottom part of the door {front, side}
---    If the following fields are not defined the default values are used
---    node_box_bottom
---    node_box_top
---    selection_box_bottom
---    selection_box_top
---    only_placer_can_open: if true only the player who placed the door can
---                          open it
+--{{{ doors:register_door
 function doors:register_door(name, def)
 	def.groups.not_in_creative_inventory = 1
 	
+    --{{{ Door nodeboxes
 	local box = {{-0.5, -0.5, -0.5,   0.5, 0.5, -0.5+3/16}}
-	--local box = {{-0.5, -0.5, -0.5,   0.5, 0.5, 0.5}}	
 
 	if not def.node_box_bottom then
 		def.node_box_bottom = box
@@ -33,7 +19,9 @@ function doors:register_door(name, def)
 	if not def.selection_box_top then
 		def.selection_box_top = box
 	end
+    --}}}
 	
+    --{{{ Item registration
 	minetest.register_craftitem(name, {
 		description = def.description,
 		inventory_image = def.inventory_image,
@@ -80,14 +68,14 @@ function doors:register_door(name, def)
 				minetest.set_node(pt2, {name=name.."_t_2", param2=p2})
 			end
 			
-			if def.only_placer_can_open then
-				local pn = placer:get_player_name()
-				local meta = minetest.get_meta(pt)
-				meta:set_string("doors_owner", pn)
-				meta:set_string("infotext", "Owned by "..pn)
-				meta = minetest.get_meta(pt2)
-				meta:set_string("doors_owner", pn)
-				meta:set_string("infotext", "Owned by "..pn)
+			if def.with_lock then
+			    local passwd = itemstack:get_metadata()
+			    local meta = minetest.get_meta(pt)
+			    meta:set_string("lock_pass", passwd)
+			    meta:set_string("infotext", def.infotext)
+			    meta = minetest.get_meta(pt2)
+			    meta:set_string("lock_pass", passwd)
+			    meta:set_string("infotext", def.infotext)
 			end
 			
 			if not minetest.setting_getbool("creative_mode") then
@@ -96,6 +84,7 @@ function doors:register_door(name, def)
 			return itemstack
 		end,
 	})
+    --}}}
 	
 	local tt = def.tiles_top
 	local tb = def.tiles_bottom
@@ -106,29 +95,170 @@ function doors:register_door(name, def)
 		end
 	end
 	
-	local function on_rightclick(pos, dir, check_name, replace, replace_dir, params)
+    --{{{ On rightclick
+	local function swapDoor(pos, dir, check_name, replace, replace_dir, lock)
 		pos.y = pos.y+dir
 		if not minetest.get_node(pos).name == check_name then
 			return
 		end
-		local p2 = minetest.get_node(pos).param2
-		p2 = params[p2+1]
 		
-		minetest.swap_node(pos, {name=replace_dir, param2=p2})
+		minetest.swap_node(pos, {name=replace_dir})
 		
 		pos.y = pos.y-dir
-		minetest.swap_node(pos, {name=replace, param2=p2})
+		minetest.swap_node(pos, {name=replace})
+
+        if lock ~= nil then
+            local meta = minetest.get_meta(pos)
+            meta:set_string("lock_pass", lock)
+
+		    pos.y = pos.y+dir
+
+            meta = minetest.get_meta(pos)
+            meta:set_string("lock_pass", lock)
+        end
 	end
+
+    if not def.can_open then
+        def.can_open = function (pos, clicker)
+            local wield_item = clicker:get_wielded_item()
+            if wield_item:get_name() == "real_locks:key" then 
+		        local lock_pass = minetest.get_meta(pos):get_string("lock_pass")
+		        local key_pass = wield_item:get_metadata()
+
+		        return lock_pass == key_pass
+            else
+                return false
+            end
+	    end
+    end
+    --}}}
 	
-	local function check_player_priv(pos, player)
-		if not def.only_placer_can_open then
-			return true
-		end
-		local meta = minetest.get_meta(pos)
-		local pn = player:get_player_name()
-		return meta:get_string("doors_owner") == pn
-	end
+    --{{{ Node registration
+    if def.with_lock then
+
+    --{{{ b_1
+	minetest.register_node(name.."_b_1_locked", {
+		tiles = {tb[1], tb[3], tb[2], tb[2].."^[transformr180", tb[1], tb[1].."^[transformfx"},
+		paramtype = "light",
+		paramtype2 = "facedir",
+		drop = name,
+		drawtype = "nodebox",
+		node_box = {
+			type = "fixed",
+			fixed = def.node_box_bottom
+		},
+		selection_box = {
+			type = "fixed",
+			fixed = def.selection_box_bottom
+		},
+		groups = def.groups,
+		
+		after_dig_node = function(pos, oldnode, oldmetadata, digger)
+			pos.y = pos.y+1
+			after_dig_node(pos, name.."_t_1_locked")
+		end,
+		
+		on_rightclick = function(pos, node, clicker)
+			if def.can_open(pos, clicker) then
+			    openDoor(pos, 1, name.."_t_1", name.."_b_2", name.."_t_2")
+			end
+		end,
+	})
+    --}}}
 	
+    --{{{ t_1
+	minetest.register_node(name.."_t_1_locked", {
+		tiles = {tt[3].."^[transformr180", tt[2], tt[2], tt[2].."^[transformr180", tt[1], tt[1].."^[transformfx"},
+		paramtype = "light",
+		paramtype2 = "facedir",
+		drop = name,
+		drawtype = "nodebox",
+		node_box = {
+			type = "fixed",
+			fixed = def.node_box_top
+		},
+		selection_box = {
+			type = "fixed",
+			fixed = def.selection_box_top
+		},
+		groups = def.groups,
+		
+		after_dig_node = function(pos, oldnode, oldmetadata, digger)
+			pos.y = pos.y-1
+			after_dig_node(pos, name.."_b_1_locked")
+		end,
+		
+		on_rightclick = function(pos, node, clicker)
+			if def.can_open(pos, clicker) then
+			    openDoor(pos, -1, name.."_b_1", name.."_t_2", name.."_b_2")
+			end
+		end,
+	})
+    --}}}
+	
+    --{{{ b_2
+	minetest.register_node(name.."_b_2_locked", {
+		tiles = {tb[1], tb[3].."^[transformfy", tb[2].."^[transformfx", tb[2], tb[1].."^[transformfx", tb[1]},
+		paramtype = "light",
+		paramtype2 = "facedir",
+		drop = name,
+		drawtype = "nodebox",
+		node_box = {
+			type = "fixed",
+			fixed = def.node_box_bottom
+		},
+		selection_box = {
+			type = "fixed",
+			fixed = def.selection_box_bottom
+		},
+		groups = def.groups,
+		
+		after_dig_node = function(pos, oldnode, oldmetadata, digger)
+			pos.y = pos.y+1
+			after_dig_node(pos, name.."_t_2_locked")
+		end,
+		
+		on_rightclick = function(pos, node, clicker)
+			if def.can_open(pos, clicker) then
+			    openDoor(pos, 1, name.."_t_2", name.."_b_1", name.."_t_1")
+			end
+		end,
+	})
+    --}}}
+	
+    --{{{ t_2
+	minetest.register_node(name.."_t_2_locked", {
+		tiles = {tt[3], tt[2], tt[2].."^[transformfx", tt[2], tt[1].."^[transformfx", tt[1]},
+		paramtype = "light",
+		paramtype2 = "facedir",
+		drop = name,
+		drawtype = "nodebox",
+		node_box = {
+			type = "fixed",
+			fixed = def.node_box_top
+		},
+		selection_box = {
+			type = "fixed",
+			fixed = def.selection_box_top
+		},
+		groups = def.groups,
+		
+		after_dig_node = function(pos, oldnode, oldmetadata, digger)
+			pos.y = pos.y-1
+			after_dig_node(pos, name.."_b_2_locked")
+		end,
+		
+		on_rightclick = function(pos, node, clicker)
+			if def.can_open(pos, clicker) then
+			    openDoor(pos, -1, name.."_b_2", name.."_t_1", name.."_b_1")
+			end
+		end,
+	})
+    --}}}
+
+	else
+
+    --{{{ b_1
 	minetest.register_node(name.."_b_1", {
 		tiles = {tb[1], tb[3], tb[2], tb[2].."^[transformr180", tb[1], tb[1].."^[transformfx"},
 		paramtype = "light",
@@ -151,14 +281,21 @@ function doors:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if check_player_priv(pos, clicker) then
-				on_rightclick(pos, 1, name.."_t_1", name.."_b_2", name.."_t_2", {1,2,3,0})
-			end
+            wield_item = clicker:get_wielded_item()
+            if wield_item:get_name() == "real_locks:lock" then
+                swapDoor(pos, 1, name.."_t_1",
+                    name.."_b_1_locked", name.."_t_1_locked",
+                    wield_item:get_metadata()
+                )
+                wield_item:take_item()
+            else
+			    openDoor(pos, 1, name.."_t_1", name.."_b_2", name.."_t_2")
+            end
 		end,
-		
-		can_dig = check_player_priv,
 	})
+    --}}}
 	
+    --{{{ t_1
 	minetest.register_node(name.."_t_1", {
 		tiles = {tt[3].."^[transformr180", tt[2], tt[2], tt[2].."^[transformr180", tt[1], tt[1].."^[transformfx"},
 		paramtype = "light",
@@ -181,14 +318,21 @@ function doors:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if check_player_priv(pos, clicker) then
-				on_rightclick(pos, -1, name.."_b_1", name.."_t_2", name.."_b_2", {1,2,3,0})
-			end
+            local wield_item = clicker:get_wielded_item():get_name()
+            if wield_item == "real_locks:lock" then
+                swapDoor(pos, 1, name.."_b_1",
+                    name.."_t_1_locked", name.."_b_1_locked",
+                    wield_item:get_metadata()
+                )
+                wield_item:take_item()
+            else
+			    openDoor(pos, -1, name.."_b_1", name.."_t_2", name.."_b_2")
+            end
 		end,
-		
-		can_dig = check_player_priv,
 	})
+    --}}}
 	
+    --{{{ b_2
 	minetest.register_node(name.."_b_2", {
 		tiles = {tb[1], tb[3].."^[transformfy", tb[2].."^[transformfx", tb[2], tb[1].."^[transformfx", tb[1]},
 		paramtype = "light",
@@ -211,14 +355,21 @@ function doors:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if check_player_priv(pos, clicker) then
-				on_rightclick(pos, 1, name.."_t_2", name.."_b_1", name.."_t_1", {3,0,1,2})
-			end
+            local wield_item = clicker:get_wielded_item():get_name()
+            if wield_item == "real_locks:lock" then
+                swapDoor(pos, 1, name.."_t_2",
+                    name.."_b_2_locked", name.."_t_2_locked",
+                    wield_item:get_metadata()
+                )
+                wield_item:take_item()
+            else
+			    openDoor(pos, 1, name.."_t_2", name.."_b_1", name.."_t_1")
+            end
 		end,
-		
-		can_dig = check_player_priv,
 	})
+    --}}}
 	
+    --{{{ t_2
 	minetest.register_node(name.."_t_2", {
 		tiles = {tt[3], tt[2], tt[2].."^[transformfx", tt[2], tt[1].."^[transformfx", tt[1]},
 		paramtype = "light",
@@ -241,16 +392,26 @@ function doors:register_door(name, def)
 		end,
 		
 		on_rightclick = function(pos, node, clicker)
-			if check_player_priv(pos, clicker) then
-				on_rightclick(pos, -1, name.."_b_2", name.."_t_1", name.."_b_1", {3,0,1,2})
-			end
-		end,
-		
-		can_dig = check_player_priv,
+            local wield_item = clicker:get_wielded_item():get_name()
+            if wield_item == "real_locks:lock" then
+                swapDoor(pos, 1, name.."_b_2",
+                    name.."_t_2_locked", name.."_b_2_locked",
+                    wield_item:get_metadata()
+                )
+                wield_item:take_item()
+            else
+			    openDoor(pos, -1, name.."_b_2", name.."_t_1", name.."_b_1")
+            end
+		end
 	})
-	
-end
+    --}}}
 
+    end
+    --}}}
+end
+--}}}
+
+--{{{ Various doors registration
 -- wooden door
 doors:register_door("doors:door_wood", {
 	description = "Wooden Door",
@@ -362,6 +523,7 @@ minetest.register_craft({
 		{"default:steel_ingot", ""}
 	}
 })
+--}}}
 
 minetest.register_alias("doors:door_wood_a_c", "doors:door_wood_t_1")
 minetest.register_alias("doors:door_wood_a_o", "doors:door_wood_t_1")
