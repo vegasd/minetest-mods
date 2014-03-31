@@ -1,5 +1,17 @@
 real_locks = {}
-local NODEMETA_STR="lock_pass"
+
+--{{{ Defaul can_open() for locked object
+real_locks.can_open_locked = function (pos, wield)
+    if wield:get_name() == "real_locks:key" then 
+		local lock_pass = minetest.get_meta(pos):get_string("lock_pass")
+		local key_pass = wield_item:get_metadata()
+
+		return lock_pass == key_pass
+    else
+        return false
+    end
+end
+--}}}
 
 --{{{Set metadata
 
