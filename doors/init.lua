@@ -15,16 +15,19 @@ end
 --}}}
 
 --{{{ swap_door
-doors.swap_door = function (pos, dir, check_name, replace, replace_dir, meta)
+doors.swap_door = function (pos, dir, check_name, replace, replace_dir, params, meta)
     pos.y = pos.y+dir
     if not minetest.get_node(pos).name == check_name then
         return
     end
 
-    minetest.swap_node(pos, {name=replace_dir})
+	local p2 = minetest.get_node(pos).param2
+	p2 = params[p2+1]
+		
+    minetest.swap_node(pos, {name=replace_dir, param2 = p2})
 
     pos.y = pos.y-dir
-    minetest.swap_node(pos, {name=replace})
+    minetest.swap_node(pos, {name=replace, param2 = p2})
 
     if meta ~= nil then
         local metadata = minetest.get_meta(pos)
@@ -39,15 +42,18 @@ end
 --}}}
 
 --{{{ open_door
-doors.open_door = function (pos, part)
+doors.open_door = function (pos, name)
+    local part = name:sub(-3)
+    name = name:sub(0,-5)
+
     if part == "t_1" then
-        doors.swap_door(pos,-1, name.."_b_1", name.."_t_2", name.."_b_2")
+        doors.swap_door(pos,-1, name.."_b_1", name.."_t_2", name.."_b_2", {1,2,3,0})
     elseif part == "b_1" then
-        doors.swap_door(pos, 1, name.."_t_1", name.."_b_2", name.."_t_2")
+        doors.swap_door(pos, 1, name.."_t_1", name.."_b_2", name.."_t_2", {1,2,3,0})
     elseif part == "t_2" then
-        doors.swap_door(pos,-1, name.."_b_2", name.."_t_1", name.."_b_1")
+        doors.swap_door(pos,-1, name.."_b_2", name.."_t_1", name.."_b_1", {3,0,1,2})
     elseif part == "b_2" then
-        doors.swap_door(pos, 1, name.."_t_2", name.."_b_1", name.."_t_1")
+        doors.swap_door(pos, 1, name.."_t_2", name.."_b_1", name.."_t_1", {3,0,1,2})
     end
 end
 --}}}
@@ -55,7 +61,7 @@ end
 --{{{ rightclick_on_locked
 doors.rightclick_on_locked = function(pos, node, clicker, wield_item)
     if real_locks.can_open_locked (pos, wield_item) then
-        doors.open_door(pos, node.name:sub(-3))
+        doors.open_door(pos, node.name)
     end
 end
 --}}}
@@ -63,8 +69,9 @@ end
 --{{{ rightclock_on_bolted
 doors.rightclick_on_bolted = function(pos, node, clicker)
     if doors.can_open_bolted(pos, node, clicker) then
-        doors.open_door(pos, node.name:sub(-3))
+        doors.open_door(pos, node.name)
     end
+end
 --}}}
 
 --{{{ rightclick_on_lockable
@@ -76,14 +83,14 @@ doors.rightclick_on_lockable = function (pos, node, clicker, wield_item)
         )
         wield_item:take_item()
     else
-        doors.open_door(pos, node.name:sub(-3))
+        doors.open_door(pos, node.name)
     end
 end
 --}}}
 
 --{{{ rightclick_on_not_lockable
 doors.rightclick_on_not_lockable = function (pos, node)
-    doors.open_door(pos, node.name:sub(-3))
+    doors.open_door(pos, node.name)
 end
 --}}}
 --}}}
