@@ -15,19 +15,16 @@ end
 --}}}
 
 --{{{ swap_door
-doors.swap_door = function (pos, dir, check_name, replace, replace_dir, params, meta)
+doors.swap_door = function (pos, dir, check_name, replace, replace_dir, meta)
     pos.y = pos.y+dir
     if not minetest.get_node(pos).name == check_name then
         return
     end
 
-	local p2 = minetest.get_node(pos).param2
-	p2 = params[p2+1]
-		
-    minetest.swap_node(pos, {name=replace_dir, param2 = p2})
+    minetest.swap_node(pos, {name=replace_dir})
 
     pos.y = pos.y-dir
-    minetest.swap_node(pos, {name=replace, param2 = p2})
+    minetest.swap_node(pos, {name=replace})
 
     if meta ~= nil then
         local metadata = minetest.get_meta(pos)
@@ -47,13 +44,13 @@ doors.open_door = function (pos, name)
     name = name:sub(0,-5)
 
     if part == "t_1" then
-        doors.swap_door(pos,-1, name.."_b_1", name.."_t_2", name.."_b_2", {1,2,3,0})
+        doors.swap_door(pos,-1, name.."_b_1", name.."_t_2", name.."_b_2")
     elseif part == "b_1" then
-        doors.swap_door(pos, 1, name.."_t_1", name.."_b_2", name.."_t_2", {1,2,3,0})
+        doors.swap_door(pos, 1, name.."_t_1", name.."_b_2", name.."_t_2")
     elseif part == "t_2" then
-        doors.swap_door(pos,-1, name.."_b_2", name.."_t_1", name.."_b_1", {3,0,1,2})
+        doors.swap_door(pos,-1, name.."_b_2", name.."_t_1", name.."_b_1")
     elseif part == "b_2" then
-        doors.swap_door(pos, 1, name.."_t_2", name.."_b_1", name.."_t_1", {3,0,1,2})
+        doors.swap_door(pos, 1, name.."_t_2", name.."_b_1", name.."_t_1")
     end
 end
 --}}}
@@ -98,23 +95,6 @@ end
 --{{{ doors:register_door
 function doors:register_door(name, def)
 	def.groups.not_in_creative_inventory = 1
-	
-    --{{{ Door nodeboxes
-	local box = {{-0.5, -0.5, -0.5,   0.5, 0.5, -0.5+3/16}}
-
-	if not def.node_box_bottom then
-		def.node_box_bottom = box
-	end
-	if not def.node_box_top then
-		def.node_box_top = box
-	end
-	if not def.selection_box_bottom then
-		def.selection_box_bottom= box
-	end
-	if not def.selection_box_top then
-		def.selection_box_top = box
-	end
-    --}}}
 	
     --{{{ Item registration
 	minetest.register_craftitem(name, {
@@ -181,124 +161,114 @@ function doors:register_door(name, def)
 	})
     --}}}
 	
+    --{{{ Node registration
+
+    --{{{ Tables
+
+    --{{{ Nodenames
+    local nodes = {
+        "t_1", "b_1",
+        "t_2", "b_2",
+
+--        cw_t_1, cw_b_1,
+--        cw_t_2, cw_b_2,
+    }
+    --}}}
+    
+    --{{{ Nodeboxes
+	local box      = {-0.5, -0.5, -0.5,  0.5,      0.5, -0.5+3/16}
+	local box_open = {-0.5, -0.5, -0.5, -0.5+3/16, 0.5,  0.5     }
+
+    if def.nodeboxes == nil then
+        def.nodeboxes = {
+            t_1 = box,
+            b_1 = box,
+            t_2 = box_open,
+            b_2 = box_open,
+
+            cw_t_1 = nil,
+            cw_b_1 = nil,
+            cw_t_2 = nil,
+            cw_b_2 = nil,
+        }
+    end
+    --}}}
+
+    --{{{ Tiles
 	local tt = def.tiles_top
 	local tb = def.tiles_bottom
 	
-	local function after_dig_node(pos, name)
+    if def.tiles == nil then
+        def.tiles = {
+            t_1 = {
+                tt[4], tt[4],
+                tt[2], tt[2],
+                tt[1], tt[1].."^[transformfx"
+            },
+            b_1 = {
+                tb[4], tb[4],
+                tb[2], tb[2],
+                tb[1], tb[1].."^[transformfx"
+            },
+            t_2 = {
+                tt[5], tt[5],
+                tt[1].."^[transformfx", tt[1],
+                tt[3], tt[3]
+            },
+            b_2 = {
+                tb[5], tb[5],
+                tb[1].."^[transformfx", tb[1],
+                tb[3], tb[3]
+            },
+
+            cw_t_1 = nil,
+            cw_b_1 = nil,
+            cw_t_2 = nil,
+            cw_b_2 = nil,
+        }
+    end
+    --}}}
+    --}}}
+	
+    --{{{ after_dig
+	local function after_dig(pos, oldnode)
+        local name, count = string.gsub(oldnode.name, "_t_", "_b_")
+        if count == 0 then
+            local name, count = string.gsub(name, "_b_", "_t_")
+        end
+        
+        if string.find(name, "_t_") then
+            pos.y = pos.y + 1
+        else
+            pos.y = pos.y - 1
+        end
+
 		if minetest.get_node(pos).name == name then
 			minetest.remove_node(pos)
 		end
 	end
+    --}}}
 
     if def.rightclick == nil then
         def.rightclick = doors.rightclick_on_not_lockable
     end
-	
-    --{{{ Node registration
 
-    --{{{ b_1
-	minetest.register_node(name.."_b_1", {
-		tiles = {tb[1], tb[3], tb[2], tb[2].."^[transformr180", tb[1], tb[1].."^[transformfx"},
-		paramtype = "light",
-		paramtype2 = "facedir",
-		drop = name,
-		drawtype = "nodebox",
-		node_box = {
-			type = "fixed",
-			fixed = def.node_box_bottom
-		},
-		selection_box = {
-			type = "fixed",
-			fixed = def.selection_box_bottom
-		},
-		groups = def.groups,
-		
-		after_dig_node = function(pos, oldnode, oldmetadata, digger)
-			pos.y = pos.y+1
-			after_dig_node(pos, name.."_t_1")
-		end,
-		
-		on_rightclick = def.rightclick,
-	})
-    --}}}
-	
-    --{{{ t_1
-	minetest.register_node(name.."_t_1", {
-		tiles = {tt[3].."^[transformr180", tt[2], tt[2], tt[2].."^[transformr180", tt[1], tt[1].."^[transformfx"},
-		paramtype = "light",
-		paramtype2 = "facedir",
-		drop = name,
-		drawtype = "nodebox",
-		node_box = {
-			type = "fixed",
-			fixed = def.node_box_top
-		},
-		selection_box = {
-			type = "fixed",
-			fixed = def.selection_box_top
-		},
-		groups = def.groups,
-		
-		after_dig_node = function(pos, oldnode, oldmetadata, digger)
-			pos.y = pos.y-1
-			after_dig_node(pos, name.."_b_1")
-		end,
-		
-		on_rightclick = def.rightclick,
-	})
-    --}}}
-	
-    --{{{ b_2
-	minetest.register_node(name.."_b_2", {
-		tiles = {tb[1], tb[3].."^[transformfy", tb[2].."^[transformfx", tb[2], tb[1].."^[transformfx", tb[1]},
-		paramtype = "light",
-		paramtype2 = "facedir",
-		drop = name,
-		drawtype = "nodebox",
-		node_box = {
-			type = "fixed",
-			fixed = def.node_box_bottom
-		},
-		selection_box = {
-			type = "fixed",
-			fixed = def.selection_box_bottom
-		},
-		groups = def.groups,
-		
-		after_dig_node = function(pos, oldnode, oldmetadata, digger)
-			pos.y = pos.y+1
-			after_dig_node(pos, name.."_t_2")
-		end,
-		
-		on_rightclick = def.rightclick,
-	})
-    --}}}
-	
-    --{{{ t_2
-	minetest.register_node(name.."_t_2", {
-		tiles = {tt[3], tt[2], tt[2].."^[transformfx", tt[2], tt[1].."^[transformfx", tt[1]},
-		paramtype = "light",
-		paramtype2 = "facedir",
-		drop = name,
-		drawtype = "nodebox",
-		node_box = {
-			type = "fixed",
-			fixed = def.node_box_top
-		},
-		selection_box = {
-			type = "fixed",
-			fixed = def.selection_box_top
-		},
-		groups = def.groups,
-		
-		after_dig_node = function(pos, oldnode, oldmetadata, digger)
-			pos.y = pos.y-1
-			after_dig_node(pos, name.."_b_2")
-		end,
-		
-		on_rightclick = def.rightclick,
-	})
-    --}}}
+    for k,part in pairs(nodes) do
+	    minetest.register_node(name.."_"..part, {
+		    tiles = def.tiles[part],
+		    paramtype = "light",
+		    paramtype2 = "facedir",
+		    drop = name,
+		    drawtype = "nodebox",
+		    node_box = {
+                type = "fixed",
+                fixed = def.nodeboxes[part],
+            },
+		    groups = def.groups,
+		    after_dig_node = after_dig,
+		    on_rightclick = def.rightclick,
+	    })
+    end
 
     --}}}
 end
@@ -310,8 +280,8 @@ doors:register_door("doors:door_wood", {
 	description = "Wooden Door",
 	inventory_image = "door_wood.png",
 	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=2,flammable=2,door=1},
-	tiles_bottom = {"door_wood_b.png", "door_wood_c.png","door_wood_d.png"},
-	tiles_top = {"door_wood_a.png", "door_wood_c.png","door_wood_d.png"},
+	tiles_top    = {"door_wood_a.png", "door_wood_side.png", "door_wood_side_open.png","door_wood_y.png", "door_wood_y_open.png"},
+	tiles_bottom = {"door_wood_b.png", "door_wood_side.png", "door_wood_side_open.png","door_wood_y.png", "door_wood_y_open.png"},
 })
 
 minetest.register_craft({
