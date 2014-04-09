@@ -1,6 +1,6 @@
 real_locks = {}
 
---{{{ Defaul can_open() for locked object
+--{{{ Default can_open() for locked object
 real_locks.can_open_locked = function (pos, wield)
     if wield:get_name() == "real_locks:key" then 
 		local lock_pass = minetest.get_meta(pos):get_string("lock_pass")
@@ -63,6 +63,15 @@ minetest.register_craftitem("real_locks:lock", {
     groups = {},
     inventory_image = "real_locks_lock.png",
     wield_image = "real_locks_lock.png",
+    stack_max = 1,
+    range = 2,
+})
+
+minetest.register_craftitem("real_locks:bolt", {
+    description = "Bolt",
+    groups = {},
+    inventory_image = "real_locks_bolt.png",
+    wield_image = "real_locks_bolt.png",
     stack_max = 1,
     range = 2,
 })

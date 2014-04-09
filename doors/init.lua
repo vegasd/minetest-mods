@@ -4,7 +4,7 @@ doors = {}
 
 --{{{ Functions
 
---{{{ can_open for door with bolt
+--{{{ can_open_bolted
 doors.can_open_bolted = function (pos, node, clicker)
     if string.find(node.name, "_1") then
         local door_facedir = node.param2
@@ -21,7 +21,7 @@ doors.swap_door = function (pos, dir, check_name, replace, replace_dir, meta)
     pos.y = pos.y+dir
     local replace_node = minetest.get_node(pos)
 
-    if not replace_node.name == check_name then
+    if replace_node.name ~= check_name then
         return
     end
 
@@ -42,20 +42,32 @@ doors.swap_door = function (pos, dir, check_name, replace, replace_dir, meta)
 end
 --}}}
 
+--{{{ get_swap_parts
+local function get_swap_parts(part, mode)
+    if mode == "open" then
+        if     part == "t_1" then return -1, "_b_1", "_t_2", "_b_2"
+        elseif part == "b_1" then return  1, "_t_1", "_b_2", "_t_2"
+        elseif part == "t_2" then return -1, "_b_2", "_t_1", "_b_1"
+        elseif part == "b_2" then return  1, "_t_2", "_b_1", "_t_1"
+        end
+    elseif mode == "swap" then
+        if     part == "t_1" then return -1, "_b_1", "_t_1", "_b_1"
+        elseif part == "b_1" then return  1, "_t_1", "_b_1", "_t_1"
+        elseif part == "t_2" then return -1, "_b_2", "_t_2", "_b_2"
+        elseif part == "b_2" then return  1, "_t_2", "_b_2", "_t_2"
+        end
+    end
+end
+--}}}
+
 --{{{ open_door
 doors.open_door = function (pos, name)
-    local part = name:sub(-3)
+    local dir, check, pointed_part, second_part = get_swap_parts(name:sub(-3), "open")
     name = name:sub(0,-5)
-
-    if part == "t_1" then
-        doors.swap_door(pos,-1, name.."_b_1", name.."_t_2", name.."_b_2")
-    elseif part == "b_1" then
-        doors.swap_door(pos, 1, name.."_t_1", name.."_b_2", name.."_t_2")
-    elseif part == "t_2" then
-        doors.swap_door(pos,-1, name.."_b_2", name.."_t_1", name.."_b_1")
-    elseif part == "b_2" then
-        doors.swap_door(pos, 1, name.."_t_2", name.."_b_1", name.."_t_1")
-    end
+    doors.swap_door(pos, dir,
+        name .. check,
+        name .. pointed_part,
+        name .. second_part)
 end
 --}}}
 
@@ -86,6 +98,24 @@ doors.rightclick_on_locked = function(pos, node, clicker, wield_item)
 end
 --}}}
 
+--{{{ rightclick_on_lockable
+doors.rightclick_on_lockable = function (pos, node, clicker, wield_item)
+    local name = node.name:sub(1,-5)
+    local dir, check, pointed_part, second_part = get_swap_parts(name:sub(-3), "swap")
+
+    if wield_item:get_name() == "real_locks:lock" then
+        doors.swap_door(pos, dir,
+            name .. check,
+            name .. "_locked" .. pointed_part,
+            name .. "_locked" .. second_part
+        )
+        wield_item:take_item()
+    else
+        doors.open_door(pos, node.name)
+    end
+end
+--}}}
+
 --{{{ rightclock_on_bolted
 doors.rightclick_on_bolted = function(pos, node, clicker)
     if doors.can_open_bolted(pos, node, clicker) then
@@ -94,13 +124,28 @@ doors.rightclick_on_bolted = function(pos, node, clicker)
 end
 --}}}
 
---{{{ rightclick_on_lockable
-doors.rightclick_on_lockable = function (pos, node, clicker, wield_item)
-    if wield_item:get_name() == "real_locks:lock" then
-        doors.swap_door(pos, 1, name.."_t_1",
-            name.."locked_b_1", name.."locked_t_1",
-            {"lock_pass", wield_item:get_metadata()}
+--{{{ rightclick_on_boltable
+doors.rightclick_on_boltable = function (pos, node, clicker, wield_item)
+    local name = node.name:sub(1,-5)
+    
+    local bolted = "bolted"
+    local cw = ""
+    if string.find(name, "_cw") then
+        bolted = "_bolted_cw"
+        cw = "_cw"
+        name = name:sub(1,-4)
+    end
+
+    local dir, check, pointed_part, second_part = get_swap_parts(node.name:sub(-3), "swap")
+
+    print(name .. cw .. check)
+    if wield_item:get_name() == "real_locks:bolt" then
+        doors.swap_door(pos, dir,
+            name .. cw .. check,
+            name .. bolted .. pointed_part,
+            name .. bolted .. second_part
         )
+        print(minetest.get_node(pos).name)
         wield_item:take_item()
     else
         doors.open_door(pos, node.name)
@@ -259,6 +304,16 @@ end
 --{{{ Default tiles table
 local tt = {}
 local tb = {}
+tt = {
+    "door_wood_a.png",
+    "door_wood_side.png", "door_wood_side_open.png",
+    "door_wood_y.png", "door_wood_y_open.png"
+}
+tb = {
+    "door_wood_b.png",
+    "door_wood_side.png", "door_wood_side_open.png",
+    "door_wood_y.png", "door_wood_y_open.png"
+}
 local t = {
     t_1 = {
         tt[4], tt[4],
@@ -305,23 +360,23 @@ local t = {
 --}}}
 
 --{{{ door wood weak
-tt = {
-    "door_wood_a.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
-}
-tb = {
-    "door_wood_b.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
-}
-
 doors:register_door("doors:door_wood_weak", {
     description = "Weak wooden door",
     inventory_image = "door_wood_weak.png",
     groups = {snappy=1,choppy=1,oddly_breakable_by_hand=2,flammable=2,door=1},
-    tiles = t
+    tiles = t,
+    rightclick = doors.rightclick_on_boltable
 })
+
+-- Bolted version
+doors:register_door("doors:door_wood_weak_bolted", {
+    description = "Weak wooden door",
+    inventory_image = "door_wood_weak.png",
+    groups = {snappy=1,choppy=1,oddly_breakable_by_hand=2,flammable=2,door=1},
+    tiles = t,
+    rightclick = doors.rightclick_on_bolted
+})
+
 --}}}
 
 --{{{ door wood
