@@ -1,5 +1,7 @@
 doors = {}
 
+--{{{ Default
+
 --{{{ Functions
 
 --{{{ can_open for door with bolt
@@ -57,6 +59,25 @@ doors.open_door = function (pos, name)
 end
 --}}}
 
+    --{{{ after_dig
+doors.after_dig = function (pos, oldnode)
+    local name, count = string.gsub(oldnode.name, "_t_", "_b_")
+    if count == 0 then
+        name, count = string.gsub(name, "_b_", "_t_")
+    end
+        
+    if string.find(name, "_t_") then
+        pos.y = pos.y + 1
+    else
+        pos.y = pos.y - 1
+    end
+
+    if minetest.get_node(pos).name == name then
+        minetest.remove_node(pos)
+    end
+end
+    --}}}
+
 --{{{ rightclick_on_locked
 doors.rightclick_on_locked = function(pos, node, clicker, wield_item)
     if real_locks.can_open_locked (pos, wield_item) then
@@ -92,6 +113,29 @@ doors.rightclick_on_not_lockable = function (pos, node)
     doors.open_door(pos, node.name)
 end
 --}}}
+
+--}}}
+
+--{{{ Tables
+
+--{{{ Nodenames
+local nodes = {
+    "t_1", "b_1",
+    "t_2", "b_2",
+
+    "cw_t_1", "cw_b_1",
+    "cw_t_2", "cw_b_2",
+}
+--}}}
+
+--{{{ Nodeboxes
+local box         = {-0.5,      -0.5, -0.5,  0.5,      0.5, -0.5+3/16}
+local box_open    = {-0.5,      -0.5, -0.5, -0.5+3/16, 0.5,  0.5     }
+local cw_box_open = { 0.5-3/16, -0.5, -0.5,  0.5,      0.5,  0.5     }
+--}}}
+
+--}}}
+
 --}}}
 
 --{{{ doors:register_door
@@ -165,23 +209,7 @@ function doors:register_door(name, def)
 	
     --{{{ Node registration
 
-    --{{{ Tables
-
-    --{{{ Nodenames
-    local nodes = {
-        "t_1", "b_1",
-        "t_2", "b_2",
-
-        "cw_t_1", "cw_b_1",
-        "cw_t_2", "cw_b_2",
-    }
-    --}}}
-    
     --{{{ Nodeboxes
-	local box         = {-0.5,      -0.5, -0.5,  0.5,      0.5, -0.5+3/16}
-	local box_open    = {-0.5,      -0.5, -0.5, -0.5+3/16, 0.5,  0.5     }
-	local cw_box_open = { 0.5-3/16, -0.5, -0.5,  0.5,      0.5,  0.5     }
-
     if def.nodeboxes == nil then
         def.nodeboxes = {
             t_1 = box,
@@ -197,29 +225,12 @@ function doors:register_door(name, def)
     end
     --}}}
 
-    --}}}
-	
-    --{{{ after_dig
-	local function after_dig(pos, oldnode)
-        local name, count = string.gsub(oldnode.name, "_t_", "_b_")
-        if count == 0 then
-            name, count = string.gsub(name, "_b_", "_t_")
-        end
-        
-        if string.find(name, "_t_") then
-            pos.y = pos.y + 1
-        else
-            pos.y = pos.y - 1
-        end
-
-		if minetest.get_node(pos).name == name then
-			minetest.remove_node(pos)
-		end
-	end
-    --}}}
-
     if def.rightclick == nil then
         def.rightclick = doors.rightclick_on_not_lockable
+    end
+
+    if def.after_dig == nil then
+        def.after_dig = doors.after_dig
     end
 
     for k,part in pairs(nodes) do
@@ -234,7 +245,7 @@ function doors:register_door(name, def)
                 fixed = def.nodeboxes[part],
             },
 		    groups = def.groups,
-		    after_dig_node = after_dig,
+		    after_dig_node = def.after_dig,
 		    on_rightclick = def.rightclick,
 	    })
     end
