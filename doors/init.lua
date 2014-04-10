@@ -2,6 +2,41 @@ doors = {}
 
 --{{{ Default
 
+--{{{ Tables
+
+--{{{ Nodenames
+local nodes = {
+    "t_1", "b_1",
+    "t_2", "b_2",
+
+    "cw_t_1", "cw_b_1",
+    "cw_t_2", "cw_b_2",
+}
+--}}}
+
+--{{{ Nodeboxes
+local box         = {-0.5,      -0.5, -0.5,  0.5,      0.5, -0.5+3/16}
+local box_open    = {-0.5,      -0.5, -0.5, -0.5+3/16, 0.5,  0.5     }
+local cw_box_open = { 0.5-3/16, -0.5, -0.5,  0.5,      0.5,  0.5     }
+--}}}
+
+--{{{ Parts
+local parts_for_open = {
+    t_1 = {dir = -1, "_b_1", "_t_2", "_b_2"},
+    b_1 = {dir =  1, "_t_1", "_b_2", "_t_2"},
+    t_2 = {dir = -1, "_b_2", "_t_1", "_b_1"},
+    b_2 = {dir =  1, "_t_2", "_b_1", "_t_1"}
+}
+local parts_for_swap = {
+    t_1 = {dir = -1, "_b_1", "_t_1", "_b_1"},
+    b_1 = {dir =  1, "_t_1", "_b_1", "_t_1"},
+    t_2 = {dir = -1, "_b_2", "_t_2", "_b_2"},
+    b_2 = {dir =  1, "_t_2", "_b_2", "_t_2"}
+}
+--}}}
+
+--}}}
+
 --{{{ Functions
 
 --{{{ can_open_bolted
@@ -42,32 +77,14 @@ doors.swap_door = function (pos, dir, check_name, replace, replace_dir, meta)
 end
 --}}}
 
---{{{ get_swap_parts
-local function get_swap_parts(part, mode)
-    if mode == "open" then
-        if     part == "t_1" then return -1, "_b_1", "_t_2", "_b_2"
-        elseif part == "b_1" then return  1, "_t_1", "_b_2", "_t_2"
-        elseif part == "t_2" then return -1, "_b_2", "_t_1", "_b_1"
-        elseif part == "b_2" then return  1, "_t_2", "_b_1", "_t_1"
-        end
-    elseif mode == "swap" then
-        if     part == "t_1" then return -1, "_b_1", "_t_1", "_b_1"
-        elseif part == "b_1" then return  1, "_t_1", "_b_1", "_t_1"
-        elseif part == "t_2" then return -1, "_b_2", "_t_2", "_b_2"
-        elseif part == "b_2" then return  1, "_t_2", "_b_2", "_t_2"
-        end
-    end
-end
---}}}
-
 --{{{ open_door
 doors.open_door = function (pos, name)
-    local dir, check, pointed_part, second_part = get_swap_parts(name:sub(-3), "open")
+    local parts = parts_for_open[name:sub(-3)]
     name = name:sub(0,-5)
-    doors.swap_door(pos, dir,
-        name .. check,
-        name .. pointed_part,
-        name .. second_part)
+    doors.swap_door(pos, parts.dir,
+        name .. parts[1],
+        name .. parts[2],
+        name .. parts[3])
 end
 --}}}
 
@@ -136,16 +153,14 @@ doors.rightclick_on_boltable = function (pos, node, clicker, wield_item)
         name = name:sub(1,-4)
     end
 
-    local dir, check, pointed_part, second_part = get_swap_parts(node.name:sub(-3), "swap")
+    local parts = parts_for_swap[node.name:sub(-3)]
 
-    print(name .. cw .. check)
     if wield_item:get_name() == "real_locks:bolt" then
-        doors.swap_door(pos, dir,
-            name .. cw .. check,
-            name .. bolted .. pointed_part,
-            name .. bolted .. second_part
+        doors.swap_door(pos, parts.dir,
+            name .. cw     .. parts[1],
+            name .. bolted .. parts[2],
+            name .. bolted .. parts[3]
         )
-        print(minetest.get_node(pos).name)
         wield_item:take_item()
     else
         doors.open_door(pos, node.name)
@@ -157,26 +172,6 @@ end
 doors.rightclick_on_not_lockable = function (pos, node)
     doors.open_door(pos, node.name)
 end
---}}}
-
---}}}
-
---{{{ Tables
-
---{{{ Nodenames
-local nodes = {
-    "t_1", "b_1",
-    "t_2", "b_2",
-
-    "cw_t_1", "cw_b_1",
-    "cw_t_2", "cw_b_2",
-}
---}}}
-
---{{{ Nodeboxes
-local box         = {-0.5,      -0.5, -0.5,  0.5,      0.5, -0.5+3/16}
-local box_open    = {-0.5,      -0.5, -0.5, -0.5+3/16, 0.5,  0.5     }
-local cw_box_open = { 0.5-3/16, -0.5, -0.5,  0.5,      0.5,  0.5     }
 --}}}
 
 --}}}
