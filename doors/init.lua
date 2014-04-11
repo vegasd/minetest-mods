@@ -143,24 +143,64 @@ end
 
 --{{{ rightclick_on_boltable
 doors.rightclick_on_boltable = function (pos, node, clicker, wield_item)
-    local name = node.name:sub(1,-5)
-    
-    local bolted = "bolted"
-    local cw = ""
-    if string.find(name, "_cw") then
-        bolted = "_bolted_cw"
-        cw = "_cw"
-        name = name:sub(1,-4)
-    end
-
-    local parts = parts_for_swap[node.name:sub(-3)]
-
     if wield_item:get_name() == "real_locks:bolt" then
+        local name = node.name:sub(1,-5)
+        local p2 = node.param2
+        local pos2 = pos
+        local pos1 = pos
+        local parts = parts_for_swap[node.name:sub(-3)]
+
+        local bolted = "_bolted"
+        local bolt_o = "_bolted_cw"
+        local cw = ""
+        local opposite = "_cw"
+        if string.find(name, "_cw") then
+            bolted = "_bolted_cw"
+            bolt_o = "_bolted"
+            cw = "_cw"
+            opposite = ""
+            name = name:sub(1,-4)
+
+            if p2 == 0 then
+                pos2.x = pos2.x-1
+            elseif p2 == 1 then
+                pos2.z = pos2.z+1
+            elseif p2 == 2 then
+                pos2.x = pos2.x+1
+            elseif p2 == 3 then
+                pos2.z = pos2.z-1
+            end
+        else
+            if p2 == 0 then
+                pos2.x = pos2.x+1
+            elseif p2 == 1 then
+                pos2.z = pos2.z-1
+            elseif p2 == 2 then
+                pos2.x = pos2.x-1
+            elseif p2 == 3 then
+                pos2.z = pos2.z+1
+            end
+        end
+
+        print(dump(pos))
+        print(dump(pos1))
+        print(dump(pos2))
         doors.swap_door(pos, parts.dir,
             name .. cw     .. parts[1],
             name .. bolted .. parts[2],
             name .. bolted .. parts[3]
         )
+
+        print(dump(pos))
+        print(dump(pos1))
+        print(dump(pos2))
+        parts = parts_for_swap[minetest.get_node(pos2).name:sub(-3)]
+        doors.swap_door(pos2, parts.dir,
+            name .. opposite .. parts[1],
+            name .. bolt_o   .. parts[2],
+            name .. bolt_o   .. parts[3]
+        )
+
         wield_item:take_item()
     else
         doors.open_door(pos, node.name)
