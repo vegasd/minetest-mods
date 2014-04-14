@@ -146,8 +146,7 @@ doors.rightclick_on_boltable = function (pos, node, clicker, wield_item)
     if wield_item:get_name() == "real_locks:bolt" then
         local name = node.name:sub(1,-5)
         local p2 = node.param2
-        local pos2 = pos
-        local pos1 = pos
+        local pos2 = {y = pos.y}
         local parts = parts_for_swap[node.name:sub(-3)]
 
         local bolted = "_bolted"
@@ -162,44 +161,48 @@ doors.rightclick_on_boltable = function (pos, node, clicker, wield_item)
             name = name:sub(1,-4)
 
             if p2 == 0 then
-                pos2.x = pos2.x-1
+                pos2.x = pos.x-1
+                pos2.z = pos.z
             elseif p2 == 1 then
-                pos2.z = pos2.z+1
+                pos2.z = pos.z+1
+                pos2.x = pos.x
             elseif p2 == 2 then
-                pos2.x = pos2.x+1
+                pos2.x = pos.x+1
+                pos2.z = pos.z
             elseif p2 == 3 then
-                pos2.z = pos2.z-1
+                pos2.z = pos.z-1
+                pos2.x = pos.x
             end
         else
             if p2 == 0 then
-                pos2.x = pos2.x+1
+                pos2.x = pos.x+1
+                pos2.z = pos.z
             elseif p2 == 1 then
-                pos2.z = pos2.z-1
+                pos2.z = pos.z-1
+                pos2.x = pos.x
             elseif p2 == 2 then
-                pos2.x = pos2.x-1
+                pos2.x = pos.x-1
+                pos2.z = pos.z
             elseif p2 == 3 then
-                pos2.z = pos2.z+1
+                pos2.z = pos.z+1
+                pos2.x = pos.x
             end
         end
 
-        print(dump(pos))
-        print(dump(pos1))
-        print(dump(pos2))
         doors.swap_door(pos, parts.dir,
             name .. cw     .. parts[1],
             name .. bolted .. parts[2],
             name .. bolted .. parts[3]
         )
 
-        print(dump(pos))
-        print(dump(pos1))
-        print(dump(pos2))
         parts = parts_for_swap[minetest.get_node(pos2).name:sub(-3)]
-        doors.swap_door(pos2, parts.dir,
-            name .. opposite .. parts[1],
-            name .. bolt_o   .. parts[2],
-            name .. bolt_o   .. parts[3]
-        )
+        if parts ~= nil then
+            doors.swap_door(pos2, parts.dir,
+                name .. opposite .. parts[1],
+                name .. bolt_o   .. parts[2],
+                name .. bolt_o   .. parts[3]
+            )
+        end
 
         wield_item:take_item()
     else
@@ -511,6 +514,7 @@ minetest.register_craft({
 --})
 
 --}}}
+
 minetest.register_alias("doors:door_wood_a_c", "doors:door_wood_t_1")
 minetest.register_alias("doors:door_wood_a_o", "doors:door_wood_t_1")
 minetest.register_alias("doors:door_wood_b_c", "doors:door_wood_b_1")
