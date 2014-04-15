@@ -116,96 +116,76 @@ end
 --}}}
 
 --{{{ rightclick_on_lockable
-doors.rightclick_on_lockable = function (pos, node, clicker, wield_item)
+doors.add_lock = function (pos, node, wield_item, lock_type, meta)
     local name = node.name:sub(1,-5)
-    local dir, check, pointed_part, second_part = get_swap_parts(name:sub(-3), "swap")
+    local p2 = node.param2
+    local pos2 = {y = pos.y}
 
-    if wield_item:get_name() == "real_locks:lock" then
-        doors.swap_door(pos, dir,
-            name .. check,
-            name .. "_locked" .. pointed_part,
-            name .. "_locked" .. second_part
-        )
-        wield_item:take_item()
+    local locked = "_" .. lock_type
+    local lock_o = "_" .. lock_type .. "_cw"
+    local cw = ""
+    local opposite = "_cw"
+    if string.find(name, "_cw") then
+        -- Swap values
+        locked, lock_o = lock_o, locked
+        cw, opposite = opposite, cw
+
+        name = name:sub(1,-4)
+
+        if p2 == 0 then
+            pos2.x = pos.x-1
+            pos2.z = pos.z
+        elseif p2 == 1 then
+            pos2.z = pos.z+1
+            pos2.x = pos.x
+        elseif p2 == 2 then
+            pos2.x = pos.x+1
+            pos2.z = pos.z
+        elseif p2 == 3 then
+            pos2.z = pos.z-1
+            pos2.x = pos.x
+        end
     else
-        doors.open_door(pos, node.name)
+        if p2 == 0 then
+            pos2.x = pos.x+1
+            pos2.z = pos.z
+        elseif p2 == 1 then
+            pos2.z = pos.z-1
+            pos2.x = pos.x
+        elseif p2 == 2 then
+            pos2.x = pos.x-1
+            pos2.z = pos.z
+        elseif p2 == 3 then
+            pos2.z = pos.z+1
+            pos2.x = pos.x
+        end
     end
+
+    local parts = parts_for_swap[node.name:sub(-3)]
+    doors.swap_door(pos, parts.dir,
+        name .. cw     .. parts[1],
+        name .. locked .. parts[2],
+        name .. locked .. parts[3],
+        meta
+    )
+
+    parts = parts_for_swap[minetest.get_node(pos2).name:sub(-3)]
+    if parts ~= nil then
+        doors.swap_door(pos2, parts.dir,
+            name .. opposite .. parts[1],
+            name .. lock_o   .. parts[2],
+            name .. lock_o   .. parts[3],
+            meta
+        )
+    end
+
+    wield_item:take_item()
 end
 --}}}
 
 --{{{ rightclock_on_bolted
 doors.rightclick_on_bolted = function(pos, node, clicker)
     if doors.can_open_bolted(pos, node, clicker) then
-        doors.open_door(pos, node.name)
-    end
-end
---}}}
-
---{{{ rightclick_on_boltable
-doors.rightclick_on_boltable = function (pos, node, clicker, wield_item)
-    if wield_item:get_name() == "real_locks:bolt" then
-        local name = node.name:sub(1,-5)
-        local p2 = node.param2
-        local pos2 = {y = pos.y}
-        local parts = parts_for_swap[node.name:sub(-3)]
-
-        local bolted = "_bolted"
-        local bolt_o = "_bolted_cw"
-        local cw = ""
-        local opposite = "_cw"
-        if string.find(name, "_cw") then
-            bolted = "_bolted_cw"
-            bolt_o = "_bolted"
-            cw = "_cw"
-            opposite = ""
-            name = name:sub(1,-4)
-
-            if p2 == 0 then
-                pos2.x = pos.x-1
-                pos2.z = pos.z
-            elseif p2 == 1 then
-                pos2.z = pos.z+1
-                pos2.x = pos.x
-            elseif p2 == 2 then
-                pos2.x = pos.x+1
-                pos2.z = pos.z
-            elseif p2 == 3 then
-                pos2.z = pos.z-1
-                pos2.x = pos.x
-            end
-        else
-            if p2 == 0 then
-                pos2.x = pos.x+1
-                pos2.z = pos.z
-            elseif p2 == 1 then
-                pos2.z = pos.z-1
-                pos2.x = pos.x
-            elseif p2 == 2 then
-                pos2.x = pos.x-1
-                pos2.z = pos.z
-            elseif p2 == 3 then
-                pos2.z = pos.z+1
-                pos2.x = pos.x
-            end
-        end
-
-        doors.swap_door(pos, parts.dir,
-            name .. cw     .. parts[1],
-            name .. bolted .. parts[2],
-            name .. bolted .. parts[3]
-        )
-
-        parts = parts_for_swap[minetest.get_node(pos2).name:sub(-3)]
-        if parts ~= nil then
-            doors.swap_door(pos2, parts.dir,
-                name .. opposite .. parts[1],
-                name .. bolt_o   .. parts[2],
-                name .. bolt_o   .. parts[3]
-            )
-        end
-
-        wield_item:take_item()
-    else
         doors.open_door(pos, node.name)
     end
 end
@@ -308,8 +288,8 @@ function doors:register_door(name, def)
     end
     --}}}
 
-    if def.rightclick == nil then
-        def.rightclick = doors.rightclick_on_not_lockable
+    if def.on_rightclick == nil then
+        def.on_rightclick = doors.rightclick_on_not_lockable
     end
 
     if def.after_dig == nil then
@@ -329,7 +309,8 @@ function doors:register_door(name, def)
             },
 		    groups = def.groups,
 		    after_dig_node = def.after_dig,
-		    on_rightclick = def.rightclick,
+		    on_rightclick = def.on_rightclick,
+            on_construct = def.on_construct,
 	    })
     end
 
@@ -403,16 +384,26 @@ doors:register_door("doors:door_wood_weak", {
     inventory_image = "door_wood_weak.png",
     groups = {snappy=1,choppy=1,oddly_breakable_by_hand=2,flammable=2,door=1},
     tiles = t,
-    rightclick = doors.rightclick_on_boltable
+    on_rightclick = function (pos, node, clicker, wield_item)
+        if wield_item:get_name() == "real_locks:bolt" then
+            doors.add_lock(pos, node, wield_item, "bolt")
+        else
+            doors.open_door(pos, node.name)
+        end
+    end
 })
 
 -- Bolted version
-doors:register_door("doors:door_wood_weak_bolted", {
+doors:register_door("doors:door_wood_weak_bolt", {
     description = "Weak wooden door",
     inventory_image = "door_wood_weak.png",
     groups = {snappy=1,choppy=1,oddly_breakable_by_hand=2,flammable=2,door=1},
     tiles = t,
-    rightclick = doors.rightclick_on_bolted
+    on_rightclick = doors.rightclick_on_bolted,
+    on_construct = function(pos)
+        local meta = minetest.get_meta(pos)
+        meta:set_string("infotext", "Bolted")
+    end
 })
 
 --}}}
@@ -432,10 +423,49 @@ tb = {
 doors:register_door("doors:door_wood", {
 	description = "Wooden Door",
 	inventory_image = "door_wood.png",
-	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=2,flammable=2,door=1},
-    tiles = t
+	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=1,flammable=2,door=1,level=1},
+    tiles = t,
+    on_rightclick = function (pos, node, clicker, wield_item)
+        if wield_item:get_name() == "real_locks:lock" then
+            doors.add_lock(
+                pos, node, wield_item, "lock",
+                {"lock_pass", wield_item:get_metadata()}
+            )
+        elseif wield_item:get_name() == "real_locks:bolt" then
+            doors.add_lock(pos, node, wield_item, "bolt")
+        else
+            doors.open_door(pos, node.name)
+        end
+    end
 })
 
+-- Bolted version
+doors:register_door("doors:door_wood_bolt", {
+	description = "Wooden Door",
+	inventory_image = "door_wood.png",
+	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=1,flammable=2,door=1,level=1},
+    tiles = t,
+    on_rightclick = doors.rightclick_on_bolted
+    on_construct = function(pos)
+        local meta = minetest.get_meta(pos)
+        meta:set_string("infotext", "Bolted")
+    end
+})
+
+-- Locked version
+doors:register_door("doors:door_wood_lock", {
+	description = "Wooden Door",
+	inventory_image = "door_wood.png",
+	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=1,flammable=2,door=1,level=1},
+    tiles = t,
+    on_rightclick = doors.rightclick_on_locked
+    on_construct = function(pos)
+        local meta = minetest.get_meta(pos)
+        meta:set_string("infotext", "Locked")
+    end
+})
+
+-- Craft
 minetest.register_craft({
 	output = "doors:door_wood",
 	recipe = {
@@ -446,73 +476,262 @@ minetest.register_craft({
 })
 --}}}
 
+--{{{ door wood studded
+tt = {
+    "door_wood_a.png",
+    "door_wood_side.png", "door_wood_side_open.png",
+    "door_wood_y.png", "door_wood_y_open.png"
+}
+tb = {
+    "door_wood_b.png",
+    "door_wood_side.png", "door_wood_side_open.png",
+    "door_wood_y.png", "door_wood_y_open.png"
+}
+
+doors:register_door("doors:door_wood_studded", {
+	description = "Wooden door, studded with iron",
+	inventory_image = "door_wood.png",
+	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=1,flammable=2,door=1,level=1},
+    tiles = t,
+    on_rightclick = function (pos, node, clicker, wield_item)
+        if wield_item:get_name() == "real_locks:lock" then
+            doors.add_lock(
+                pos, node, wield_item, "lock",
+                {"lock_pass", wield_item:get_metadata()}
+            )
+        elseif wield_item:get_name() == "real_locks:bolt" then
+            doors.add_lock(pos, node, wield_item, "bolt")
+        else
+            doors.open_door(pos, node.name)
+        end
+    end
+})
+
+-- Bolted version
+doors:register_door("doors:door_wood_studded_bolt", {
+	description = "Wooden door, studded with iron, with bolt",
+	inventory_image = "door_wood.png",
+	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=1,flammable=2,door=1,level=1},
+    tiles = t,
+    on_rightclick = doors.rightclick_on_bolted
+    on_construct = function(pos)
+        local meta = minetest.get_meta(pos)
+        meta:set_string("infotext", "Bolted")
+    end
+})
+
+-- Locked version
+doors:register_door("doors:door_wood_studded_lock", {
+	description = "Wooden door, studded with iron, with lock",
+	inventory_image = "door_wood.png",
+	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=1,flammable=2,door=1,level=1},
+    tiles = t,
+    on_rightclick = doors.rightclick_on_locked
+    on_construct = function(pos)
+        local meta = minetest.get_meta(pos)
+        meta:set_string("infotext", "Locked")
+    end
+})
+
+-- Craft
+minetest.register_craft({
+	output = "doors:door_wood",
+	recipe = {
+		{"group:wood", "group:wood"},
+		{"group:wood", "group:wood"},
+		{"group:wood", "group:wood"}
+	}
+})
 --}}}
 
---{{{ Various doors registration
---real_locks:register_door("real_locks:door_wood", {
---	description = "Wooden door with lock",
---    infotext = "Locked",
---	inventory_image = "real_locks_door_wood.png",
---	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=1,flammable=2,door=1,level=1},
---	tiles_bottom = {"real_locks_door_wood_b.png", "real_locks_door_wood_side.png"},
---	tiles_top = {"real_locks_door_wood_a.png", "real_locks_door_wood_side.png"},
---})
---
---real_locks:register_door("real_locks:door_wood_studded", {
---	description = "Wooden door studded with iron, with lock",
---    infotext = "Locked",
---	inventory_image = "real_locks_door_wood_studded.png",
---	groups = {choppy=3,flammable=2,door=1,level=2},
---	tiles_bottom = {"real_locks_door_wood_studded_b.png", "real_locks_door_wood_studded_side.png"},
---	tiles_top = {"real_locks_door_wood_studded_a.png", "real_locks_door_wood_studded_side.png"},
---})
---
---real_locks:register_door("real_locks:door_iron_bars", {
---	description = "Door of iron bars, with lock",
---    infotext = "Locked",
---	inventory_image = "real_locks_door_iron_bars.png",
---	groups = {cracky=1,bendy=2,melty=1,door=1,level=1},
---	tiles_bottom = {"real_locks_door_iron_bars_b.png", "real_locks_door_iron_bars_side.png"},
---	tiles_top = {"real_locks_door_iron_bars_a.png", "real_locks_door_iron_bars_side.png"},
---})
---
---real_locks:register_door("real_locks:door_iron_heavy", {
---	description = "Heavy Metal door with lock",
---    infotext = "Locked",
---	inventory_image = "real_locks_door_iron_heavy.png",
---	groups = {cracky=3,bendy=2,melty=3,door=1,level=3},
---	tiles_bottom = {"real_locks_door_iron_heavy_b.png", "real_locks_door_iron_heavy_side.png"},
---	tiles_top = {"real_locks_door_iron_heavy_a.png", "real_locks_door_iron_heavy_side.png"},
---})
---
---real_locks:register_door("real_locks:door_iron_decorative", {
---	description = "Decorative iron door with lock",
---    infotext = "Locked",
---	inventory_image = "real_locks_door_iron_decorative.png",
---	groups = {cracky=2,bendy=2,melty=2,door=1,level=2},
---	tiles_bottom = {"real_locks_door_iron_decorative_b.png", "real_locks_door_iron_decorative_side.png"},
---	tiles_top = {"real_locks_door_iron_decorative_a.png", "real_locks_door_iron_decorative_side.png"},
---})
---
----- Just an example
---real_locks:register_door("real_locks:door_wood_bolt", {
---	description = "Wooden Door with bolt",
---    infotext = "Bolted",
---	inventory_image = "door_wood.png",
---	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=2,flammable=2,door=1},
---	tiles_bottom = {"door_wood_b.png", "door_brown.png"},
---	tiles_top = {"door_wood_a.png", "door_brown.png"},
---    can_open = function (pos, clicker)
---        if string.find(minetest.get_node(pos).name, "_1") then
---            local door_facedir = minetest.get_node(pos).param2
---            local clicker_facedir = minetest.dir_to_facedir(vector.direction(clicker:getpos(),pos))
---            if door_facedir ~= clicker_facedir then return false
---            end
---        end
---        return true
---    end
---})
+--{{{ door iron bars
+tt = {
+    "door_wood_a.png",
+    "door_wood_side.png", "door_wood_side_open.png",
+    "door_wood_y.png", "door_wood_y_open.png"
+}
+tb = {
+    "door_wood_b.png",
+    "door_wood_side.png", "door_wood_side_open.png",
+    "door_wood_y.png", "door_wood_y_open.png"
+}
 
+doors:register_door("doors:door_iron_bars", {
+	description = "Door of iron bars",
+	inventory_image = "door_wood.png",
+    groups = {cracky=1,bendy=2,melty=1,door=1,level=1},
+    tiles = t,
+    on_rightclick = function (pos, node, clicker, wield_item)
+        if wield_item:get_name() == "real_locks:lock" then
+            doors.add_lock(
+                pos, node, wield_item, "lock",
+                {"lock_pass", wield_item:get_metadata()}
+            )
+        else
+            doors.open_door(pos, node.name)
+        end
+    end
+})
+
+-- Locked version
+doors:register_door("doors:door_iron_bars_lock", {
+	description = "Door of iron bars, with lock",
+	inventory_image = "door_wood.png",
+    groups = {cracky=1,bendy=2,melty=1,door=1,level=1},
+    tiles = t,
+    on_rightclick = doors.rightclick_on_locked
+    on_construct = function(pos)
+        local meta = minetest.get_meta(pos)
+        meta:set_string("infotext", "Locked")
+    end
+})
+
+-- Craft
+minetest.register_craft({
+	output = "doors:door_iron_bars",
+	recipe = {
+		{"default:steel_ingot"},
+		{"default:steel_ingot", "default:steel_ingot"},
+		{"default:steel_ingot", "default:steel_ingot"}
+	}
+})
+--}}}
+
+--{{{ door iron heavy
+tt = {
+    "door_wood_a.png",
+    "door_wood_side.png", "door_wood_side_open.png",
+    "door_wood_y.png", "door_wood_y_open.png"
+}
+tb = {
+    "door_wood_b.png",
+    "door_wood_side.png", "door_wood_side_open.png",
+    "door_wood_y.png", "door_wood_y_open.png"
+}
+
+doors:register_door("doors:door_iron_heavy", {
+	description = "Heavy Metal door",
+	inventory_image = "door_wood.png",
+    groups = {cracky=3,bendy=2,melty=3,door=1,level=3},
+    tiles = t,
+    on_rightclick = function (pos, node, clicker, wield_item)
+        if wield_item:get_name() == "real_locks:lock" then
+            doors.add_lock(
+                pos, node, wield_item, "lock",
+                {"lock_pass", wield_item:get_metadata()}
+            )
+        elseif wield_item:get_name() == "real_locks:bolt" then
+            doors.add_lock(pos, node, wield_item, "bolt")
+        else
+            doors.open_door(pos, node.name)
+        end
+    end
+})
+
+-- Bolted version
+doors:register_door("doors:door_iron_heavy_bolt", {
+	description = "Heavy Metal door, with bolt",
+	inventory_image = "door_wood.png",
+    groups = {cracky=3,bendy=2,melty=3,door=1,level=3},
+    tiles = t,
+    on_rightclick = doors.rightclick_on_bolted
+    on_construct = function(pos)
+        local meta = minetest.get_meta(pos)
+        meta:set_string("infotext", "Bolted")
+    end
+})
+
+-- Locked version
+doors:register_door("doors:door_iron_heavy_lock", {
+	description = "Heavy Metal door, with lock",
+	inventory_image = "door_wood.png",
+    groups = {cracky=3,bendy=2,melty=3,door=1,level=3},
+    tiles = t,
+    on_rightclick = doors.rightclick_on_locked
+    on_construct = function(pos)
+        local meta = minetest.get_meta(pos)
+        meta:set_string("infotext", "Locked")
+    end
+})
+
+-- Craft
+minetest.register_craft({
+	output = "doors:door_iron_heavy",
+	recipe = {
+		{"default:steel_ingot", "default:steel_ingot"},
+		{"default:steel_ingot", "default:steel_ingot"},
+		{"default:steel_ingot", "default:steel_ingot"}
+	}
+})
+--}}}
+
+--{{{ door iron decorative
+tt = {
+    "door_wood_a.png",
+    "door_wood_side.png", "door_wood_side_open.png",
+    "door_wood_y.png", "door_wood_y_open.png"
+}
+tb = {
+    "door_wood_b.png",
+    "door_wood_side.png", "door_wood_side_open.png",
+    "door_wood_y.png", "door_wood_y_open.png"
+}
+
+doors:register_door("doors:door_iron_decorative", {
+	description = "Decorative iron door",
+	inventory_image = "door_wood.png",
+    groups = {cracky=2,bendy=2,melty=2,door=1,level=2},
+    tiles = t,
+    on_rightclick = function (pos, node, clicker, wield_item)
+        if wield_item:get_name() == "real_locks:lock" then
+            doors.add_lock(
+                pos, node, wield_item, "lock",
+                {"lock_pass", wield_item:get_metadata()}
+            )
+        elseif wield_item:get_name() == "real_locks:bolt" then
+            doors.add_lock(pos, node, wield_item, "bolt")
+        else
+            doors.open_door(pos, node.name)
+        end
+    end
+})
+
+-- Bolted version
+doors:register_door("doors:door_iron_decorative_bolt", {
+	description = "Decorative iron door, with bolt",
+	inventory_image = "door_wood.png",
+    groups = {cracky=2,bendy=2,melty=2,door=1,level=2},
+    tiles = t,
+    on_rightclick = doors.rightclick_on_bolted
+    on_construct = function(pos)
+        local meta = minetest.get_meta(pos)
+        meta:set_string("infotext", "Bolted")
+    end
+})
+
+-- Locked version
+doors:register_door("doors:door_iron_decorative_lock", {
+	description = "Decorative iron door, with lock",
+	inventory_image = "door_wood.png",
+    groups = {cracky=2,bendy=2,melty=2,door=1,level=2},
+    tiles = t,
+    on_rightclick = doors.rightclick_on_locked
+    on_construct = function(pos)
+        local meta = minetest.get_meta(pos)
+        meta:set_string("infotext", "Locked")
+    end
+})
+
+-- Craft
+minetest.register_craft({
+	output = "doors:door_iron_decorative",
+	recipe = {
+		{, "default:steel_ingot"},
+		{"default:steel_ingot", "default:steel_ingot"},
+		{"default:steel_ingot", "default:steel_ingot"}
+	}
+})
+--}}}
 --}}}
 
 minetest.register_alias("doors:door_wood_a_c", "doors:door_wood_t_1")
