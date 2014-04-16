@@ -321,64 +321,59 @@ end
 --{{{ Various doors registration
 
 --{{{ Default tiles table
-local tt = {}
-local tb = {}
-tt = {
-    "door_wood_a.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
-}
-tb = {
-    "door_wood_b.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
-}
+local tiles = {"","","","","",""}
 local t = {
     t_1 = {
-        tt[4], tt[4],
-        tt[2], tt[2],
-        tt[1], tt[1].."^[transformfx"
+        tiles[5], tiles[5],
+        tiles[3], tiles[3],
+        tiles[1], tiles[1].."^[transformfx"
     },
     b_1 = {
-        tb[4], tb[4],
-        tb[2], tb[2],
-        tb[1], tb[1].."^[transformfx"
+        tiles[5], tiles[5],
+        tiles[3], tiles[3],
+        tiles[2], tiles[2].."^[transformfx"
     },
     t_2 = {
-        tt[5], tt[5].."^[transformr180",
-        tt[1].."^[transformfx", tt[1],
-        tt[3], tt[3]
+        tiles[6], tiles[6].."^[transformr180",
+        tiles[1].."^[transformfx", tiles[1],
+        tiles[4], tiles[4]
     },
     b_2 = {
-        tb[5], tb[5].."^[transformr180",
-        tb[1].."^[transformfx", tb[1],
-        tb[3], tb[3]
+        tiles[6], tiles[6].."^[transformr180",
+        tiles[2].."^[transformfx", tiles[2],
+        tiles[4], tiles[4]
     },
 
     cw_t_1 = {
-        tt[4].."^[transformfx", tt[4].."^[transformfx",
-        tt[2].."^[transformfx", tt[2].."^[transformfx",
-        tt[1].."^[transformfx", tt[1]
+        tiles[5].."^[transformfx", tiles[5].."^[transformfx",
+        tiles[3].."^[transformfx", tiles[3].."^[transformfx",
+        tiles[1].."^[transformfx", tiles[1]
     },
     cw_b_1 = {
-        tb[4].."^[transformfx", tb[4].."^[transformfx",
-        tb[2].."^[transformfx", tb[2].."^[transformfx",
-        tb[1].."^[transformfx", tb[1]
+        tiles[5].."^[transformfx", tiles[5].."^[transformfx",
+        tiles[3].."^[transformfx", tiles[3].."^[transformfx",
+        tiles[2].."^[transformfx", tiles[2]
     },
     cw_t_2 = {
-        tt[5].."^[transformfx", tt[5].."^[transformfy",
-        tt[1].."^[transformfx", tt[1],
-        tt[3].."^[transformfx", tt[3].."^[transformfx"
+        tiles[6].."^[transformfx", tiles[6].."^[transformfy",
+        tiles[1].."^[transformfx", tiles[1],
+        tiles[4].."^[transformfx", tiles[4].."^[transformfx"
     },
     cw_b_2 = {
-        tb[5].."^[transformfx", tb[5].."^[transformfy",
-        tb[1].."^[transformfx", tb[1],
-        tb[3].."^[transformfx", tb[3].."^[transformfx"
+        tiles[6].."^[transformfx", tiles[6].."^[transformfy",
+        tiles[2].."^[transformfx", tiles[2],
+        tiles[4].."^[transformfx", tiles[4].."^[transformfx"
     },
 }
 --}}}
 
 --{{{ door wood weak
+tiles = {
+    "door_wood_weak_a.png", "door_wood_weak_b.png",
+    "door_wood_weak_side.png", "door_wood_weak_side_open.png",
+    "door_wood_weak_y.png", "door_wood_weak_y_open.png"
+}
+
 doors:register_door("doors:door_wood_weak", {
     description = "Weak wooden door",
     inventory_image = "door_wood_weak.png",
@@ -409,13 +404,8 @@ doors:register_door("doors:door_wood_weak_bolt", {
 --}}}
 
 --{{{ door wood
-tt = {
-    "door_wood_a.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
-}
-tb = {
-    "door_wood_b.png",
+tiles = {
+    "door_wood_a.png","door_wood_b.png",
     "door_wood_side.png", "door_wood_side_open.png",
     "door_wood_y.png", "door_wood_y_open.png"
 }
@@ -477,20 +467,15 @@ minetest.register_craft({
 --}}}
 
 --{{{ door wood studded
-tt = {
-    "door_wood_a.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
-}
-tb = {
-    "door_wood_b.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
+tiles = {
+    "door_wood_studded_a.png","door_wood_studded_b.png",
+    "door_wood_studded_side.png", "door_wood_studded_side_open.png",
+    "door_wood_studded_y.png", "door_wood_studded_y_open.png"
 }
 
 doors:register_door("doors:door_wood_studded", {
 	description = "Wooden door, studded with iron",
-	inventory_image = "door_wood.png",
+	inventory_image = "door_wood_studded.png",
 	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=1,flammable=2,door=1,level=1},
     tiles = t,
     on_rightclick = function (pos, node, clicker, wield_item)
@@ -510,7 +495,7 @@ doors:register_door("doors:door_wood_studded", {
 -- Bolted version
 doors:register_door("doors:door_wood_studded_bolt", {
 	description = "Wooden door, studded with iron, with bolt",
-	inventory_image = "door_wood.png",
+	inventory_image = "door_wood_studded.png",
 	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=1,flammable=2,door=1,level=1},
     tiles = t,
     on_rightclick = doors.rightclick_on_bolted
@@ -523,7 +508,7 @@ doors:register_door("doors:door_wood_studded_bolt", {
 -- Locked version
 doors:register_door("doors:door_wood_studded_lock", {
 	description = "Wooden door, studded with iron, with lock",
-	inventory_image = "door_wood.png",
+	inventory_image = "door_wood_studded.png",
 	groups = {snappy=1,choppy=2,oddly_breakable_by_hand=1,flammable=2,door=1,level=1},
     tiles = t,
     on_rightclick = doors.rightclick_on_locked
@@ -545,20 +530,15 @@ minetest.register_craft({
 --}}}
 
 --{{{ door iron bars
-tt = {
-    "door_wood_a.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
-}
-tb = {
-    "door_wood_b.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
+tiles = {
+    "door_iron_bars_a.png","door_iron_bars_b.png",
+    "door_iron_bars_side.png", "door_iron_bars_side_open.png",
+    "door_iron_bars_y.png", "door_iron_bars_y_open.png"
 }
 
 doors:register_door("doors:door_iron_bars", {
 	description = "Door of iron bars",
-	inventory_image = "door_wood.png",
+	inventory_image = "door_iron_bars.png",
     groups = {cracky=1,bendy=2,melty=1,door=1,level=1},
     tiles = t,
     on_rightclick = function (pos, node, clicker, wield_item)
@@ -576,7 +556,7 @@ doors:register_door("doors:door_iron_bars", {
 -- Locked version
 doors:register_door("doors:door_iron_bars_lock", {
 	description = "Door of iron bars, with lock",
-	inventory_image = "door_wood.png",
+	inventory_image = "door_iron_bars.png",
     groups = {cracky=1,bendy=2,melty=1,door=1,level=1},
     tiles = t,
     on_rightclick = doors.rightclick_on_locked
@@ -598,20 +578,15 @@ minetest.register_craft({
 --}}}
 
 --{{{ door iron heavy
-tt = {
-    "door_wood_a.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
-}
-tb = {
-    "door_wood_b.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
+tiles = {
+    "door_iron_heavy_a.png","door_iron_heavy_b.png",
+    "door_iron_heavy_side.png", "door_iron_heavy_side_open.png",
+    "door_iron_heavy_y.png", "door_iron_heavy_y_open.png"
 }
 
 doors:register_door("doors:door_iron_heavy", {
 	description = "Heavy Metal door",
-	inventory_image = "door_wood.png",
+	inventory_image = "door_iron_heavy.png",
     groups = {cracky=3,bendy=2,melty=3,door=1,level=3},
     tiles = t,
     on_rightclick = function (pos, node, clicker, wield_item)
@@ -631,7 +606,7 @@ doors:register_door("doors:door_iron_heavy", {
 -- Bolted version
 doors:register_door("doors:door_iron_heavy_bolt", {
 	description = "Heavy Metal door, with bolt",
-	inventory_image = "door_wood.png",
+	inventory_image = "door_iron_heavy.png",
     groups = {cracky=3,bendy=2,melty=3,door=1,level=3},
     tiles = t,
     on_rightclick = doors.rightclick_on_bolted
@@ -644,7 +619,7 @@ doors:register_door("doors:door_iron_heavy_bolt", {
 -- Locked version
 doors:register_door("doors:door_iron_heavy_lock", {
 	description = "Heavy Metal door, with lock",
-	inventory_image = "door_wood.png",
+	inventory_image = "door_iron_heavy.png",
     groups = {cracky=3,bendy=2,melty=3,door=1,level=3},
     tiles = t,
     on_rightclick = doors.rightclick_on_locked
@@ -666,20 +641,15 @@ minetest.register_craft({
 --}}}
 
 --{{{ door iron decorative
-tt = {
-    "door_wood_a.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
-}
-tb = {
-    "door_wood_b.png",
-    "door_wood_side.png", "door_wood_side_open.png",
-    "door_wood_y.png", "door_wood_y_open.png"
+tiles = {
+    "door_iron_decorative_a.png","door_iron_decorative_b.png",
+    "door_iron_decorative_side.png", "door_iron_decorative_side_open.png",
+    "door_iron_decorative_y.png", "door_iron_decorative_y_open.png"
 }
 
 doors:register_door("doors:door_iron_decorative", {
 	description = "Decorative iron door",
-	inventory_image = "door_wood.png",
+	inventory_image = "door_iron_decorative.png",
     groups = {cracky=2,bendy=2,melty=2,door=1,level=2},
     tiles = t,
     on_rightclick = function (pos, node, clicker, wield_item)
@@ -688,31 +658,16 @@ doors:register_door("doors:door_iron_decorative", {
                 pos, node, wield_item, "lock",
                 {"lock_pass", wield_item:get_metadata()}
             )
-        elseif wield_item:get_name() == "real_locks:bolt" then
-            doors.add_lock(pos, node, wield_item, "bolt")
         else
             doors.open_door(pos, node.name)
         end
     end
 })
 
--- Bolted version
-doors:register_door("doors:door_iron_decorative_bolt", {
-	description = "Decorative iron door, with bolt",
-	inventory_image = "door_wood.png",
-    groups = {cracky=2,bendy=2,melty=2,door=1,level=2},
-    tiles = t,
-    on_rightclick = doors.rightclick_on_bolted
-    on_construct = function(pos)
-        local meta = minetest.get_meta(pos)
-        meta:set_string("infotext", "Bolted")
-    end
-})
-
 -- Locked version
 doors:register_door("doors:door_iron_decorative_lock", {
 	description = "Decorative iron door, with lock",
-	inventory_image = "door_wood.png",
+	inventory_image = "door_iron_decorative.png",
     groups = {cracky=2,bendy=2,melty=2,door=1,level=2},
     tiles = t,
     on_rightclick = doors.rightclick_on_locked
