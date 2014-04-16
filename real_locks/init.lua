@@ -4,7 +4,7 @@ real_locks = {}
 real_locks.can_open_locked = function (pos, wield)
     if wield:get_name() == "real_locks:key" then 
 		local lock_pass = minetest.get_meta(pos):get_string("lock_pass")
-		local key_pass = wield_item:get_metadata()
+		local key_pass = wield:get_metadata()
 
 		return lock_pass == key_pass
     else
