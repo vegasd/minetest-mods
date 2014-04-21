@@ -35,8 +35,8 @@ local player_textures = {}
 local player_anim = {}
 local player_sneak = {}
 
-function player.get_animation(player)
-	local name = player:get_player_name()
+function player.get_animation(p)
+	local name = p:get_player_name()
 	return {
 		model = player_model[name],
 		textures = player_textures[name],
@@ -45,22 +45,22 @@ function player.get_animation(player)
 end
 
 -- Called when a player's appearance needs to be updated
-function player.set_model(player, model_name)
-	local name = player:get_player_name()
+function player.set_model(p, model_name)
+	local name = p:get_player_name()
 	local model = models[model_name]
 	if model then
 		if player_model[name] == model_name then
 			return
 		end
-		player:set_properties({
+		p:set_properties({
 			mesh = model_name,
 			textures = player_textures[name] or model.textures,
 			visual = "mesh",
 			visual_size = model.visual_size or {x=1, y=1},
 		})
-		player.set_animation(player, "stand")
+		player.set_animation(p, "stand")
 	else
-		player:set_properties({
+		p:set_properties({
 			textures = { "player.png", "player_back.png", },
 			visual = "upright_sprite",
 		})
@@ -68,14 +68,14 @@ function player.set_model(player, model_name)
 	player_model[name] = model_name
 end
 
-function player.set_textures(player, textures)
-	local name = player:get_player_name()
+function player.set_textures(p, textures)
+	local name = p:get_player_name()
 	player_textures[name] = textures
-	player:set_properties({textures = textures,})
+	p:set_properties({textures = textures,})
 end
 
-function player.set_animation(player, anim_name, speed)
-	local name = player:get_player_name()
+function player.set_animation(p, anim_name, speed)
+	local name = p:get_player_name()
 	if player_anim[name] == anim_name then
 		return
 	end
@@ -85,16 +85,16 @@ function player.set_animation(player, anim_name, speed)
 	end
 	local anim = model.animations[anim_name]
 	player_anim[name] = anim_name
-	player:set_animation(anim, speed or model.animation_speed, animation_blend)
+	p:set_animation(anim, speed or model.animation_speed, animation_blend)
 end
 
 -- Update appearance when the player joins
-minetest.register_on_joinplayer(function(player)
-	player.set_model(player, "character.x")
+minetest.register_on_joinplayer(function(p)
+	player.set_model(p, "character.x")
 end)
 
-minetest.register_on_leaveplayer(function(player)
-	local name = player:get_player_name()
+minetest.register_on_leaveplayer(function(p)
+	local name = p:get_player_name()
 	player_model[name] = nil
 	player_anim[name] = nil
 	player_textures[name] = nil
@@ -105,12 +105,12 @@ local player_set_animation = player.set_animation
 
 -- Check each player and apply animations
 minetest.register_globalstep(function(dtime)
-	for _, player in pairs(minetest.get_connected_players()) do
-		local name = player:get_player_name()
+	for _, p in pairs(minetest.get_connected_players()) do
+		local name = p:get_player_name()
 		local model_name = player_model[name]
 		local model = model_name and models[model_name]
 		if model then
-			local controls = player:get_player_control()
+			local controls = p:get_player_control()
 			local walking = false
 			local animation_speed_mod = model.animation_speed or 30
 
@@ -125,22 +125,22 @@ minetest.register_globalstep(function(dtime)
 			end
 
 			-- Apply animations based on what the player is doing
-			if player:get_hp() == 0 then
-				player_set_animation(player, "lay")
+			if p:get_hp() == 0 then
+				player_set_animation(p, "lay")
 			elseif walking then
 				if player_sneak[name] ~= controls.sneak then
 					player_anim[name] = nil
 					player_sneak[name] = controls.sneak
 				end
 				if controls.LMB then
-					player_set_animation(player, "walk_mine", animation_speed_mod)
+					player_set_animation(p, "walk_mine", animation_speed_mod)
 				else
-					player_set_animation(player, "walk", animation_speed_mod)
+					player_set_animation(p, "walk", animation_speed_mod)
 				end
 			elseif controls.LMB then
-				player_set_animation(player, "mine")
+				player_set_animation(p, "mine")
 			else
-				player_set_animation(player, "stand", animation_speed_mod)
+				player_set_animation(p, "stand", animation_speed_mod)
 			end
 		end
 	end
