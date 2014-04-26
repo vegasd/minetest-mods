@@ -1,3 +1,4 @@
+print("Loading mod 'player'.")
 player = {}
 
 -- Player animation blending
@@ -90,7 +91,9 @@ end
 
 -- Update appearance when the player joins
 minetest.register_on_joinplayer(function(p)
+    local nickname = p:get_player_name()
 	player.set_model(p, "character.x")
+    player.set_textures(p, nickname .. ".png")
 end)
 
 minetest.register_on_leaveplayer(function(p)
