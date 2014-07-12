@@ -1,20 +1,16 @@
 clothing = {}
 
 --{{{ Wear clothing (on_place)
-local function clothingPutOn(item, player)
+local function put_on(item, player)
     local name = player:get_player_name()
     local wear_image = item:get_definition().wear_image
-    local weared = clothing[name]
+    local weared = clothing[name] or {}
 
     table.insert(weared, wear_image)
 
-    local skin = ""
+    local skin = default.player_get_animation(player).textures[1]
     for _,clothing in ipairs(weared) do
-        if skin ~= "" then
-            skin = skin .. "^" .. clothing
-        else
-            skin = clothing
-        end
+        skin = skin .. "^" .. clothing
     end
 
     default.player_set_textures(player, {skin})
@@ -24,13 +20,6 @@ local function clothingPutOn(item, player)
     return item
 end
 --}}}
-
-minetest.register_on_newplayer(function(player)
-    --TODO: default.player_get_animations().textures (returns nil, becouse
-    -- using default textures). Needs skin system.
-    local skin = default.registered_player_models["character.x"].textures
-    clothing[player:get_player_name()] = skin
-end)
 
 --{{{ Save data
 minetest.register_on_shutdown(function()
@@ -47,5 +36,5 @@ minetest.register_craftitem("clothing:test", {
     wear_image = "clothing_test.png",
     stack_max = 1,
 
-    on_place = clothingPutOn
+    on_place = put_on
 })
