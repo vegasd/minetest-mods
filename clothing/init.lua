@@ -22,13 +22,22 @@ end
 --}}}
 
 --{{{ Save data
-minetest.register_on_shutdown(function()
+minetest.register_on_joinplayer(function(player)
+    print(dump(player:get_inventory():get_lists()))
+    -- Work. Yeah.
+    -- player:get_inventory():set_list("wear",{})
 end)
 
-minetest.register_globalstep(function(dtime)
+minetest.register_on_newplayer(function(player)
+    -- Add inventory list for clothing
+    player:get_inventory():set_list("wear", {})
 end)
 --}}}
 
+--{{{ Cloth
+-- Required values is:
+-- "wear_image" (this image is adding on player skin)
+-- "on_place" (this is obvious)
 minetest.register_craftitem("clothing:test", {
     decription = "Test cloth",
     inventory_image = "clothing_test.png",
@@ -38,3 +47,4 @@ minetest.register_craftitem("clothing:test", {
 
     on_place = put_on
 })
+--}}}
