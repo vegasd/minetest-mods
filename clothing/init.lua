@@ -1,20 +1,20 @@
-clothing = {}
-
 --{{{ Wear clothing (on_place)
 local function put_on(item, player)
-    local name = player:get_player_name()
-    local wear_image = item:get_definition().wear_image
-    local weared = clothing[name] or {}
+    item = player:get_inventory():add_item("wear", item)
+    print("DEBUG:", item)
 
-    table.insert(weared, wear_image)
-
+    local weared = player:get_inventory():get_list("wear")
     local skin = default.player_get_animation(player).textures[1]
-    for _,clothing in ipairs(weared) do
-        skin = skin .. "^" .. clothing
+    for _,itemstack in ipairs(weared) do
+        skin = skin .. "^" .. itemstack:get_definition().wear_image
     end
 
     default.player_set_textures(player, {skin})
-    minetest.log("action", name .. " puts on a " .. item:get_name())
+    minetest.log("action",
+        player:get_player_name() ..
+        " puts on a " ..
+        item:get_name()
+    )
 
     item:take_item()
     return item
@@ -26,6 +26,10 @@ minetest.register_on_joinplayer(function(player)
     print(dump(player:get_inventory():get_lists()))
     -- Work. Yeah.
     -- player:get_inventory():set_list("wear",{})
+end)
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+    print("DEBUG:", player, dump(formname), dump(fields))
 end)
 
 minetest.register_on_newplayer(function(player)
