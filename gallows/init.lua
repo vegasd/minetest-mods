@@ -1,9 +1,9 @@
-minetest.register_node("gallows:rope", {
+minetest.register_node("gallows:knot", {
     description = "Gallows rope",
     drawtype = "airlike",
     paramtype = "light",
-    inventory_image = "gallows_rope.png",
-    wield_image = "gallows_rope.png",
+    inventory_image = "gallows_knot.png",
+    wield_image = "gallows_knot.png",
     
     selection_box = {
         type = "fixed",
@@ -13,7 +13,7 @@ minetest.register_node("gallows:rope", {
     groups = {cracky=3 },
     
     after_place_node = function(pos, placer, itemstack, pointed_thing)
-        local rope = minetest.add_entity(pos, "gallows:rope_entity");
+        local rope = minetest.add_entity(pos, "gallows:knot_entity");
         rope:setyaw( placer:get_look_yaw() + math.pi/2 );
     end,
     
@@ -21,7 +21,7 @@ minetest.register_node("gallows:rope", {
         local all_objects = minetest.get_objects_inside_radius(pos, 0.9);
         for _,obj in ipairs(all_objects) do
             tmp = obj:get_luaentity();
-            if (tmp.name == "gallows:rope_entity") then 
+            if (tmp.name == "gallows:knot_entity") then 
                 obj:remove(); 
             end
         end
@@ -29,7 +29,7 @@ minetest.register_node("gallows:rope", {
 })
 
 
-minetest.register_entity("gallows:rope_entity",{
+minetest.register_entity("gallows:knot_entity",{
     hp_max = 1,
     physical = false,
     visual = "upright_sprite",
