@@ -35,7 +35,7 @@ minetest.register_entity("gallows:rope_entity",{
     visual = "upright_sprite",
     collisionbox = {0,0,0,0,0,0},
     visual_size = {x=1, y=1},
-    textures = {"gallows_rope.png"},
+    textures = {"gallows_knot.png"},
     spritediv = {x=1, y=1},
     initial_sprite_basepos = {x=0, y=0},
     is_visible = true,
