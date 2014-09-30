@@ -81,8 +81,29 @@ local function dig_container(pos, oldnode, oldmeta, digger)
     -- If character dig the chest with bare hands,
     -- than he is just lift it (or something like that)
     if digger:get_wielded_item():get_name() == "" then
-        digger:set_wielded_item(oldnode.name)
+        
+        -- If this was a locked container,
+        -- than we need to save lock password
+        if oldmeta.fields.lock_pass ~= nil then
+            local container = ItemStack({
+                name = oldnode.name,
+                count = 1,
+                wear = 0,
+                metadata = oldmeta.fields.lock_pass
+            })
+            digger:set_wielded_item(container)
+        else
+            digger:set_wielded_item(oldnode.name)
+        end
     end
+end
+
+local function place_locked_container(pos, placer, itemstack)
+    -- When we place a locked container,
+    -- we must restore it's lock password
+    local meta = minetest.get_meta(pos)
+    local password = itemstack:get_metadata()
+    meta:set_string("lock_pass", password)
 end
 --}}}
 
@@ -147,6 +168,8 @@ minetest.register_node("containers:chest_locked", {
 		local inv = meta:get_inventory()
 		inv:set_size("main", 8*4)
 	end,
+    after_place_node = place_locked_container,
+    after_dig_node = dig_container,
     on_rightclick = handle_locked_container,
     --{{{ Logging
 	on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
