@@ -68,6 +68,22 @@ local function handle_locked_container(pos, node, clicker, wield_item)
         end
     end
 end
+
+local function dig_container(pos, oldnode, oldmeta, digger)
+    -- Drop all what was inside the container
+    for k, itemstack in ipairs(oldmeta.inventory.main) do
+        if not itemstack:is_empty() then
+            pos.y = pos.y + 0.5
+            minetest.add_item(pos, itemstack)
+        end
+    end
+
+    -- If character dig the chest with bare hands,
+    -- than he is just lift it (or something like that)
+    if digger:get_wielded_item():get_name() == "" then
+        digger:set_wielded_item(oldnode.name)
+    end
+end
 --}}}
 
 --{{{ Chest
@@ -92,6 +108,7 @@ minetest.register_node("containers:chest", {
 		local inv = meta:get_inventory()
 		inv:set_size("main", 8*4)
 	end,
+    after_dig_node = dig_container,
     on_rightclick = handle_unlocked_container,
     --{{{ Logging
 	on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
