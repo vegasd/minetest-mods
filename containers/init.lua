@@ -1,3 +1,5 @@
+--{{{ Functions
+
 -- Chest formspec
 local function get_chest_formspec(pos)
 	local spos = pos.x .. "," .. pos.y .. "," ..pos.z
@@ -20,10 +22,11 @@ local function handle_unlocked_container(pos, node, clicker, wield_item)
         node.name = node.name .. "_locked"
         minetest.swap_node(pos, node)
 
-        -- Changing brand new locked containter infotext
+        local meta = minetest.get_meta(pos)
+        -- Changing locked containter infotext
         -- back to it's normal value
         -- (not this one from unlocked container)
-        minetest.registered_nodes[node.name].on_construct(pos)
+		meta:set_string("infotext", minetest.registered_nodes[node.name].description)
 
         -- Now set's the password (lock)
         minetest.get_meta(pos):set_string("lock_pass", wield_item:get_metadata())
@@ -31,6 +34,14 @@ local function handle_unlocked_container(pos, node, clicker, wield_item)
         -- And take used lock
         wield_item:take_item()
     else
+        -- Open container
+		minetest.log("action",
+            clicker:get_player_name()..
+            " open "..
+            node.name:sub(12,-1)..
+            " at "..
+            minetest.pos_to_string(pos))
+
         minetest.show_formspec(
 			clicker:get_player_name(),
 			node.name,
@@ -40,27 +51,28 @@ local function handle_unlocked_container(pos, node, clicker, wield_item)
 end
 
 local function handle_locked_container(pos, node, clicker, wield_item)
-    minetest.show_formspec(
-        clicker:get_player_name(),
-        node.name,
-        get_chest_formspec(pos)
-    )
-
+    -- If wield item is not a key, than character just cant open the container.
     if wield_item:get_name() == "real_locks:key" then
-        -- TODO
-        --node.name = node.name .. "_locked"
-        --minetest.swap_node(pos, node)
-        --minetest.get_meta(pos):set_string("lock_pass", wield_item:get_metadata())
+        -- Get lock metadata and key metadata
+        local password = minetest.get_meta(pos):get_string("lock_pass")
+        local meta = wield_item:get_metadata()
 
-        --minetest.show_formspec(
-		--	clicker:get_player_name(),
-		--	node.name,
-		--	get_chest_formspec(pos)
-		--)
+        -- If lock metadata and key metadata is equal,
+        -- than open the container
+        if meta == password then
+            minetest.show_formspec(
+                clicker:get_player_name(),
+                node.name,
+                get_chest_formspec(pos)
+            )
+        end
     end
 end
+--}}}
 
 --{{{ Chest
+
+--{{{ unlocked
 minetest.register_node("containers:chest", {
 	description = "Chest",
 	tiles = {
@@ -70,9 +82,9 @@ minetest.register_node("containers:chest", {
     },
 	paramtype2 = "facedir",
 	groups = {choppy=2,oddly_breakable_by_hand=2},
-	legacy_facedir_simple = true,
 	is_ground_content = false,
 	sounds = default.node_sound_wood_defaults(),
+    drop = "",
 
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
@@ -80,11 +92,7 @@ minetest.register_node("containers:chest", {
 		local inv = meta:get_inventory()
 		inv:set_size("main", 8*4)
 	end,
-	can_dig = function(pos,player)
-		local meta = minetest.get_meta(pos);
-		local inv = meta:get_inventory()
-		return inv:is_empty("main")
-	end,
+    on_rightclick = handle_unlocked_container,
     --{{{ Logging
 	on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
 		minetest.log("action", player:get_player_name()..
@@ -99,9 +107,10 @@ minetest.register_node("containers:chest", {
 				" takes stuff from chest at "..minetest.pos_to_string(pos))
 	end,
     --}}}
-    on_rightclick = handle_unlocked_container,
 })
+--}}}
 
+--{{{ locked
 minetest.register_node("containers:chest_locked", {
 	description = "Locked chest",
 	tiles = {
@@ -111,19 +120,17 @@ minetest.register_node("containers:chest_locked", {
     },
 	paramtype2 = "facedir",
 	groups = {choppy=2,oddly_breakable_by_hand=2},
-	legacy_facedir_simple = true,
 	is_ground_content = false,
 	sounds = default.node_sound_wood_defaults(),
+    drop = "",
 
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
 		meta:set_string("infotext", "Locked chest")
-	end,
-	can_dig = function(pos,player)
-		local meta = minetest.get_meta(pos);
 		local inv = meta:get_inventory()
-		return inv:is_empty("main")
+		inv:set_size("main", 8*4)
 	end,
+    on_rightclick = handle_locked_container,
     --{{{ Logging
 	on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
 		minetest.log("action", player:get_player_name()..
@@ -138,8 +145,9 @@ minetest.register_node("containers:chest_locked", {
 				" takes stuff from chest at "..minetest.pos_to_string(pos))
 	end,
     --}}}
-    on_rightclick = handle_locked_container,
 })
+--}}}
+
 --}}}
 
 --{{{ Wooden bin
