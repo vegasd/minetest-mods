@@ -344,6 +344,14 @@ minetest.register_node("containers:wood_jbox", {
 	on_construct = construct_container,
     after_dig_node = dig_container,
     on_rightclick = handle_unlocked_container,
+    allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+        -- If item is small, than you can put it in the small box
+        if minetest.get_item_group(stack:get_name(), "small") > 0 then
+            return stack:get_count()
+        else
+            return 0
+        end
+    end,
     --{{{ Logging
 	on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
 		minetest.log("action", player:get_player_name()..
@@ -406,6 +414,14 @@ minetest.register_node("containers:wood_jbox_locked", {
     after_place_node = place_locked_container,
     after_dig_node = dig_container,
     on_rightclick = handle_locked_container,
+    allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+        -- If item is small, than you can put it in the small box
+        if minetest.get_item_group(stack:get_name(), "small") > 0 then
+            return stack:get_count()
+        else
+            return 0
+        end
+    end,
     --{{{ Logging
 	on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
 		minetest.log("action", player:get_player_name()..
@@ -418,42 +434,6 @@ minetest.register_node("containers:wood_jbox_locked", {
     on_metadata_inventory_take = function(pos, listname, index, stack, player)
 		minetest.log("action", player:get_player_name()..
 				" takes stuff from jewelry box at "..minetest.pos_to_string(pos))
-	end,
-    --}}}
-})
---}}}
-
---{{{ Wooden cabinet
-minetest.register_node("containers:wood_cabinet", {
-	description = "Wooden cabinet",
-	tiles = {
-        "default_chest_top.png", "default_chest_top.png",
-        "default_chest_side.png", "default_chest_side.png",
-        "default_chest_side.png", "default_chest_front.png"
-    },
-	paramtype2 = "facedir",
-	groups = {choppy=2,oddly_breakable_by_hand=2},
-	is_ground_content = false,
-	sounds = default.node_sound_wood_defaults(),
-
-	on_construct = function(pos)
-		local meta = minetest.get_meta(pos)
-		meta:set_string("infotext", "Cabinet")
-		local inv = meta:get_inventory()
-		inv:set_size("main", 8*4)
-	end,
-    --{{{ Logging
-	on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-		minetest.log("action", player:get_player_name()..
-				" moves stuff in cabinet at "..minetest.pos_to_string(pos))
-	end,
-    on_metadata_inventory_put = function(pos, listname, index, stack, player)
-		minetest.log("action", player:get_player_name()..
-				" moves stuff to cabinet at "..minetest.pos_to_string(pos))
-	end,
-    on_metadata_inventory_take = function(pos, listname, index, stack, player)
-		minetest.log("action", player:get_player_name()..
-				" takes stuff from cabinet at "..minetest.pos_to_string(pos))
 	end,
     --}}}
 })
