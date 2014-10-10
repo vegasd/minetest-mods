@@ -33,9 +33,9 @@ formats = {
    ["%(%((.+)%)%)"] = {"%s (OOC): (( %s ))",     18,    0x9966AA, nil },
    ["!(.+)"]       = {"%s (shouts): %s",        68,    0xFFFFFF, nil },
    ["=(.+)"]        = {"%s (whispers): %s",      3,     0xE0EEE0, nil },
-   ["\*(.+)"]       = {"* %s %s",                18,    0xFFFF00, nil },
-   ["\#(.+)"]       = {"*** %s: %s ***",         18,    0xFFFF00, "gm"},
-   ["\?(.+)"]       = {"%s (OOC): %s ***",       31000, 0x20EEDD, nil },
+   ["*(.+)"]       = {"* %s %s",                18,    0xFFFF00, nil },
+   ["#(.+)"]       = {"*** %s: %s ***",         18,    0xFFFF00, "gm"},
+   ["?(.+)"]       = {"%s (OOC): %s ***",       31000, 0x20EEDD, nil },
 }
 DEFAULT_FORMAT     = "%s: %s" 
 DEFAULT_RANGE      = 18
