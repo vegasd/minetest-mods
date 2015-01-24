@@ -1,6 +1,9 @@
 clothing = {}
---{{{ Wear clothing
+
+-- Wear clothing
 clothing.update_skin = function(player)
+    -- Function gets the player's "wear" inventory list.
+    -- It's created by mod "inventory"
     local weared = player:get_inventory():get_list("wear")
     local skin = default.player_get_animation(player).textures[1]
     for _,itemstack in ipairs(weared) do
@@ -14,19 +17,11 @@ clothing.update_skin = function(player)
         player:get_player_name()
     )
 end
---}}}
 
---{{{ Save and restore data
+-- Save and restore data
 minetest.register_on_joinplayer(function(player)
     clothing.update_skin(player)
 end)
-
-minetest.register_on_newplayer(function(player)
-    -- Add inventory list for clothing
-    player:get_inventory():set_list("wear", {})
-    player:get_inventory():set_size("wear", 36)
-end)
---}}}
 
 --{{{ Cloth
 -- Required values is:
