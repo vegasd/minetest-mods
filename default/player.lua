@@ -147,9 +147,6 @@ minetest.register_on_joinplayer(function(player)
     default.player_set_textures(player, {player:get_player_name() .. ".png"})
 	
 	-- set GUI
-	if not minetest.setting_getbool("creative_mode") then
-		player:set_inventory_formspec(default.gui_suvival_form)
-	end
 	player:hud_set_hotbar_image("gui_hotbar.png")
 	player:hud_set_hotbar_selected_image("gui_hotbar_selected.png")
 end)
