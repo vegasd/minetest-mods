@@ -20,10 +20,10 @@ minetest.register_on_newplayer(function(player)
     invref:set_size("wear", 36)
 
     -- Left and right hand (is this needed?)
-    invref:set_list("left_hand", {})
-    invref:set_size("left_hand", 1)
-    invref:set_list("right_hand", {})
-    invref:set_size("right_hand", 1)
+    --invref:set_list("left_hand", {})
+    --invref:set_size("left_hand", 1)
+    --invref:set_list("right_hand", {})
+    --invref:set_size("right_hand", 1)
 end)
 
 minetest.register_on_joinplayer(function(player)
@@ -32,15 +32,29 @@ minetest.register_on_joinplayer(function(player)
 	end
 end)
 
+inventory.inventory_buttons = 
+    "button[0.25,4.9;2.5,0.1;craft_inv;Inventory]"..
+    "button[3.25,4.9;2.5,0.1;wear_inv;Clothes]"..
+    "button[6.25,4.9;2.5,0.1;notes_inv;Notes]"
+
 inventory.gui_survival_form =
+    -- Basic setup
     "size[9,5]"..
     default.gui_bg..
     default.gui_bg_img..
     default.gui_slots..
+
+    -- Craft
     "list[current_player;craft;2,0;3,3;]"..
     "image[5,1;1,1;gui_furnace_arrow_bg.png^[transformR270]"..
     "list[current_player;craftpreview;6,1;1,1;]"..
-    "list[current_player;left_hand;0.25,1;1,1;]"..
-    "list[current_player;right_hand;7.75,1;1,1;]"..
+
+    -- Left and right hand
+    --"list[current_player;left_hand;0.25,1;1,1;]"..
+    --"list[current_player;right_hand;7.75,1;1,1;]"..
+    
+    -- Main inventory
     "list[current_player;main;0,3.5;9,1;]"..
-    default.get_hotbar_bg(0,3.5)
+
+    -- Buttons
+    inventory.inventory_buttons
