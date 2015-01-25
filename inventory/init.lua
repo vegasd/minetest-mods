@@ -32,6 +32,19 @@ minetest.register_on_joinplayer(function(player)
 	end
 end)
 
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+    if formname == "" then
+        if fields.craft_inv then
+            print("Craft and inventory")
+        elseif fields.wear_inv then
+            print("Clothing")
+        elseif fields.notes_inv then
+            print("Some place for quick notes")
+        end
+    end
+    print("For debug (from inventory mod) inv. fields:",dump(fields))
+end)
+
 inventory.inventory_buttons = 
     "button[0.25,4.9;2.5,0.1;craft_inv;Inventory]"..
     "button[3.25,4.9;2.5,0.1;wear_inv;Clothes]"..
