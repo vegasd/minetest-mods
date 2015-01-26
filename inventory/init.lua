@@ -28,34 +28,47 @@ end)
 
 minetest.register_on_joinplayer(function(player)
 	if not minetest.setting_getbool("creative_mode") then
-		player:set_inventory_formspec(inventory.gui_survival_form)
+		player:set_inventory_formspec(inventory.craft)
 	end
 end)
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-    if formname == "" then
+    if (formname == "" or formname:sub(0,9) == "inventory") then
         if fields.craft_inv then
-            print("Craft and inventory")
+            minetest.show_formspec(
+                player:get_player_name(),
+                "",
+                inventory.craft
+            )
         elseif fields.wear_inv then
-            print("Clothing")
+            minetest.show_formspec(
+                player:get_player_name(),
+                "inventory:wear",
+                inventory.wear
+            )
         elseif fields.notes_inv then
-            print("Some place for quick notes")
+            minetest.show_formspec(
+                player:get_player_name(),
+                "inventory:notes",
+                inventory.notes
+            )
         end
     end
     print("For debug (from inventory mod) inv. fields:",dump(fields))
 end)
 
-inventory.inventory_buttons = 
-    "button[0.25,4.9;2.5,0.1;craft_inv;Inventory]"..
-    "button[3.25,4.9;2.5,0.1;wear_inv;Clothes]"..
-    "button[6.25,4.9;2.5,0.1;notes_inv;Notes]"
 
-inventory.gui_survival_form =
-    -- Basic setup
+inventory.base = 
     "size[9,5]"..
     default.gui_bg..
     default.gui_bg_img..
     default.gui_slots..
+    "button[0.25,4.9;2.5,0.1;craft_inv;Inventory]"..
+    "button[3.25,4.9;2.5,0.1;wear_inv;Clothes]"..
+    "button[6.25,4.9;2.5,0.1;notes_inv;Notes]"
+
+inventory.craft =
+    inventory.base..
 
     -- Craft
     "list[current_player;craft;2,0;3,3;]"..
@@ -67,7 +80,12 @@ inventory.gui_survival_form =
     --"list[current_player;right_hand;7.75,1;1,1;]"..
     
     -- Main inventory
-    "list[current_player;main;0,3.5;9,1;]"..
+    "list[current_player;main;0,3.5;9,1;]"
 
-    -- Buttons
-    inventory.inventory_buttons
+inventory.wear = 
+    inventory.base..
+    "list[current_player;wear;0,0;9,4;]"
+
+inventory.notes = 
+    inventory.base..
+    "textarea[0.3,0;9,4.5;inv_notes;Quick notes;]"
