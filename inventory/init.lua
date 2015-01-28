@@ -17,7 +17,7 @@ minetest.register_on_newplayer(function(player)
 
     -- Wear list, for clothes
     invref:set_list("wear", {})
-    invref:set_size("wear", 36)
+    invref:set_size("wear", 27)
 
     -- Left and right hand (is this needed?)
     --invref:set_list("left_hand", {})
@@ -84,7 +84,8 @@ inventory.craft =
 
 inventory.wear = 
     inventory.base..
-    "list[current_player;wear;0,0;9,4;]"
+    "list[current_player;wear;0,0;9,3;]"..
+    "list[current_player;main;0,3.5;9,1;]"
 
 inventory.notes = 
     inventory.base..
