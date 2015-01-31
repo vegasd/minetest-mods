@@ -21,6 +21,12 @@ minetest.register_on_newplayer(function(player)
 end)
 
 minetest.register_on_joinplayer(function(player)
+    -- For already existing players
+    if not player:get_inventory():get_list("wear") then
+        invref:set_list("wear", {})
+        invref:set_size("wear", inventory.width * 3)
+    end
+
 	if not minetest.setting_getbool("creative_mode") then
 		player:set_inventory_formspec(inventory.craft)
 	end
