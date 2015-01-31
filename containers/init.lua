@@ -1,7 +1,3 @@
--- TODO
-INVENTORY_W = 8
-INVENTORY_H = 4
-
 containers = {
     ["containers:chest"] =        { w = 8, h = 4 },
     ["containers:chest_locked"] = { w = 8, h = 4 },
@@ -27,18 +23,17 @@ local function get_container_formspec(pos, name)
     local label = minetest.registered_nodes[name].description
 
     -- Calculate formspec width and height
-    local form_w = math.max(INVENTORY_W, w)
-    local form_h = INVENTORY_H + h + 1
+    local form_w = math.max(inventory.width, w)
+    local form_h = inventory.height + h + 1
 
     -- Calculate offset for container inventory
-    local x_offset = (INVENTORY_W - w)/2
+    local x_offset = (inventory.width - w)/2
     local y_offset = containers.y_offset
 
     -- Calculate player inventory position,
     -- player hotbar position and "Inventory" label position
     local inv_y = h + y_offset + containers.inventory_margin
     local label_y = inv_y - y_offset - 0.4
-    local hb_y = inv_y + INVENTORY_H - 1 + containers.hotbar_margin
 
     -- Construct formspec string
     local formspec =
@@ -52,14 +47,7 @@ local function get_container_formspec(pos, name)
             x_offset..","..y_offset..";"..
             w..","..h..
             ";]"..
-        "list[current_player;main;"..
-            "0,"..inv_y..";"..
-            INVENTORY_W..","..(INVENTORY_H-1)..
-            ";]"..
-        "list[current_player;main;"..
-            "0,"..hb_y..";"..
-            INVENTORY_W..",1;24]"..
-        default.get_hotbar_bg(0,hb_y)
+        inventory.main(0, inv_y)
     return formspec
 end
 

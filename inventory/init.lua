@@ -1,5 +1,8 @@
 inventory = {}
 
+inventory.width = 9
+inventory.height = 1
+
 minetest.register_chatcommand("inv_test", {
     func = function()
         -- Called when command is run.
@@ -13,11 +16,11 @@ minetest.register_on_newplayer(function(player)
     local invref = player:get_inventory()
 
     -- Main list
-    invref:set_size("main", 9)
+    invref:set_size("main", inventory.width * inventory.height)
 
     -- Wear list, for clothes
     invref:set_list("wear", {})
-    invref:set_size("wear", 27)
+    invref:set_size("wear", inventory.width * 3)
 
     -- Left and right hand (is this needed?)
     --invref:set_list("left_hand", {})
@@ -57,9 +60,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
     print("For debug (from inventory mod) inv. fields:",dump(fields))
 end)
 
-
 inventory.base = 
-    "size[9,5]"..
+    "size[" ..inventory.width.. "," ..(inventory.height + 4).. "]"..
     default.gui_bg..
     default.gui_bg_img..
     default.gui_slots..
@@ -67,25 +69,28 @@ inventory.base =
     "button[3.25,4.9;2.5,0.1;wear_inv;Clothes]"..
     "button[6.25,4.9;2.5,0.1;notes_inv;Notes]"
 
+inventory.main = function(x,y)
+    return "list[current_player;main;"..
+        x.. "," ..y.. ";"..
+        inventory.width.. "," ..inventory.height.. ";]"
+end
+
 inventory.craft =
     inventory.base..
-
-    -- Craft
     "list[current_player;craft;2,0;3,3;]"..
     "image[5,1;1,1;gui_furnace_arrow_bg.png^[transformR270]"..
     "list[current_player;craftpreview;6,1;1,1;]"..
+    inventory.main(0,3.5)
 
     -- Left and right hand
     --"list[current_player;left_hand;0.25,1;1,1;]"..
     --"list[current_player;right_hand;7.75,1;1,1;]"..
     
-    -- Main inventory
-    "list[current_player;main;0,3.5;9,1;]"
 
 inventory.wear = 
     inventory.base..
     "list[current_player;wear;0,0;9,3;]"..
-    "list[current_player;main;0,3.5;9,1;]"
+    inventory.main(0,3.5)
 
 inventory.notes = 
     inventory.base..
