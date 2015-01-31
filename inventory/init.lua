@@ -3,15 +3,6 @@ inventory = {}
 inventory.width = 9
 inventory.height = 1
 
-minetest.register_chatcommand("inv_test", {
-    func = function()
-        -- Called when command is run.
-        -- Returns boolean success and text output.
-        local inv = minetest.get_inventory({type = "player", name = "singleplayer"})
-        print(dump(inv:get_lists()))
-    end
-})
-
 minetest.register_on_newplayer(function(player)
     local invref = player:get_inventory()
 
@@ -33,6 +24,10 @@ minetest.register_on_joinplayer(function(player)
 	if not minetest.setting_getbool("creative_mode") then
 		player:set_inventory_formspec(inventory.craft)
 	end
+    
+	player:hud_set_hotbar_image("gui_hotbar.png")
+	player:hud_set_hotbar_selected_image("gui_hotbar_selected.png")
+    player:hud_set_hotbar_itemcount(inventory.width)
 end)
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
