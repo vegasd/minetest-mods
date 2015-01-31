@@ -50,12 +50,12 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 "inventory:wear",
                 inventory.wear
             )
-        elseif fields.notes_inv then
-            minetest.show_formspec(
-                player:get_player_name(),
-                "inventory:notes",
-                inventory.notes
-            )
+        --elseif fields.notes_inv then
+        --    minetest.show_formspec(
+        --        player:get_player_name(),
+        --        "inventory:notes",
+        --        inventory.notes
+        --    )
         end
     end
     print("For debug (from inventory mod) inv. fields:",dump(fields))
@@ -66,9 +66,9 @@ inventory.base =
     default.gui_bg..
     default.gui_bg_img..
     default.gui_slots..
-    "button[0.25,4.9;2.5,0.1;craft_inv;Inventory]"..
-    "button[3.25,4.9;2.5,0.1;wear_inv;Clothes]"..
-    "button[6.25,4.9;2.5,0.1;notes_inv;Notes]"
+    "button[0.25,4.9;4.25,0.1;craft_inv;Craft]"..
+    "button[4.5,4.9;4.25,0.1;wear_inv;Clothes]"--..
+    --"button[6.25,4.9;2.5,0.1;notes_inv;Notes]"
 
 inventory.main = function(x,y)
     return "list[current_player;main;"..
