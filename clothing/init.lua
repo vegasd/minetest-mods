@@ -29,7 +29,12 @@ minetest.register_on_joinplayer(function(player)
     clothing.update_skin(player)
 end)
 
---{{{ Cloth -- Required values is:
+--{{{ Cloth
+
+clothing.registered_textures = { -- Bad
+}
+
+-- Required values is:
 -- "wear_image" (this image is adding on player skin)
 minetest.register_craftitem("clothing:test1", {
     decription = "Test cloth 1",
