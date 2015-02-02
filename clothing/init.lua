@@ -31,9 +31,6 @@ end)
 
 --{{{ Cloth
 
-clothing.registered_textures = { -- Bad
-}
-
 -- Required values is:
 -- "wear_image" (this image is adding on player skin)
 minetest.register_craftitem("clothing:test1", {
